@@ -89,6 +89,7 @@ public class StateGamePlayJb extends GameState
 	@Override
 	protected void onUpdate() 
 	{
+		/*
 		float bg0_x 	= bg_depan_static[0].getX();
 		float bg0_width = bg_depan_static[0].getWidth();
 		
@@ -107,6 +108,21 @@ public class StateGamePlayJb extends GameState
 		if (bg1_x + bg1_width < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
 		{
 			bg_depan_static[1].setX(bg0_x + bg0_width);
+		}
+		*/
+		
+		player_lari.setX(player_lari.getX() + SPEED);
+		engine.camera.setCenter(player_lari.getX() + GameEngine.cameraWidth / 2, engine.camera.getCenterY());
+		
+		
+		if (bg_depan_static[0].getX() + bg_depan_static[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+		{
+			bg_depan_static[0].setX(bg_depan_static[1].getX()+ bg_depan_static[1].getWidth());
+		}
+		
+		if (bg_depan_static[1].getX() + bg_depan_static[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
+		{
+			bg_depan_static[1].setX(bg_depan_static[0].getX() + bg_depan_static[0].getWidth());
 		}
 	}
 
