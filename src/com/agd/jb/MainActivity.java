@@ -1,24 +1,24 @@
 package com.agd.jb;
 
+import com.agd.jb.state.StateGamePlayJb;
+
 import lib.engine.GameEngine;
 import lib.engine.GameState;
-import android.os.Bundle;
-import android.app.Activity;
-import android.view.Menu;
 
 public class MainActivity extends GameEngine
 {
 
 	@Override
-	protected void gameInit() {
-		// TODO Auto-generated method stub
+	protected void gameInit() 
+	{
 		
 	}
 
 	@Override
-	protected GameState[] onCreateState() {
-		// TODO Auto-generated method stub
-		return null;
+	protected GameState[] onCreateState() 
+	{
+	
+		return new GameState[] {new StateGamePlayJb(this)};
 	}
 
 }
