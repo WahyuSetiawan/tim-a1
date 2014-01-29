@@ -105,12 +105,18 @@ public class StateGameMenuJb extends GameState
 		switch (pSceneTouchEvent.getAction()) 
 		{
 			case TouchEvent.ACTION_DOWN:
+				{
+					if (pTouchArea == text_play) {
+						text_play.detachSelf();
+						bg_fill.detachSelf();
+						bg_menu.detachSelf();
+						engine.changeState(1);
+					}
+				}
 				break;
 			case TouchEvent.ACTION_UP:
 				{
-					if (pTouchArea == text_play) {
-						engine.changeState(1);
-					}
+
 				}
 				break;
 		}
