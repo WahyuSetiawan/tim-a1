@@ -14,7 +14,7 @@ public class StateGamePlayJb extends GameState
 	
 	private GameAnim player_lari;
 	
-	public static final int SPEED = 3;
+	public static final int SPEED = 5;
 	
 	
 	public StateGamePlayJb(GameEngine engine) 
@@ -71,7 +71,7 @@ public class StateGamePlayJb extends GameState
 		bg_depan_static[1].setX(bg_depan_static[0].getWidth());
 		
 		player_lari.setX(0);
-		player_lari.setY(GameEngine.cameraHeight - 170);
+		player_lari.setY(GameEngine.cameraHeight - 180);
 	}
 
 	@Override
