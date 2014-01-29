@@ -17,10 +17,7 @@ public class MainActivity extends GameEngine
 
 	@Override
 	protected GameState[] onCreateState() 
-	{
-		int state_menu = 0;
-		int state_play = state_menu + 1;
-		
+	{		
 		return new GameState[] 
 				{
 					new StateGameMenuJb(this),

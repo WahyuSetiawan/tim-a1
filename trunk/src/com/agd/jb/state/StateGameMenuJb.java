@@ -2,6 +2,9 @@ package com.agd.jb.state;
 
 
 import com.agd.jb.state.StateGamePlayJb;
+import com.agd.jb.state.value.ValueCamera;
+import com.agd.jb.state.value.ValuePlay;
+import com.agd.jb.state.value.ValueState;
 
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
@@ -12,8 +15,8 @@ import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
 
-public class StateGameMenuJb extends GameState
-{
+public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay, ValueState
+{	
 	private GameSprite bg_menu;
 	private GameSprite bg_fill;
 	
@@ -107,10 +110,7 @@ public class StateGameMenuJb extends GameState
 			case TouchEvent.ACTION_DOWN:
 				{
 					if (pTouchArea == text_play) {
-						text_play.detachSelf();
-						bg_fill.detachSelf();
-						bg_menu.detachSelf();
-						engine.changeState(1);
+						exitState(STATE_PLAY);
 					}
 				}
 				break;
@@ -122,5 +122,4 @@ public class StateGameMenuJb extends GameState
 		}
 		return false;
 	}
-
 }
