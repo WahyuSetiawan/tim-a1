@@ -35,7 +35,8 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	private static final int doublejump = 2;
 	
 	private float jumpy;
-	private int rangeup;
+	
+	private float rangeup;
 	
 	public static final int SPEED = 5;
 	
@@ -58,7 +59,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		button.setAlpha(0f);
 		
-		status = new GameText(String.valueOf(rangeup), 1, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		//status = new GameText("00", 1, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		jump = 0;
 		move_player = up;
-		jumpy = (float) 10;
+		jumpy = 10f;
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		engine.scene.attachChild(player_lari);
 		engine.hud.attachChild(button);	
-		engine.hud.attachChild(status);
+		//engine.hud.attachChild(status);
 	}
 
 	@Override
@@ -95,7 +96,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		player_lari.detachSelf();
 		button.detachSelf();
-		status.detachSelf();
+		//status.detachSelf();
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		player_lari.setY(GameEngine.cameraHeight - 180);
 		
 		button.setPosition(Anchor.BOTTOM_RIGHT);
-		status.setPosition(Anchor.TOP_RIGHT);
+		//status.setPosition(Anchor.TOP_RIGHT);
 	}
 
 	@Override
@@ -143,9 +144,9 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		if(jump == singlejump)
 		{
-			doubleJump(true, player_lari, 150, GameEngine.cameraHeight - player_lari.getHeight());
+			doubleJump(true, player_lari,  GameEngine.cameraHeight - 180, jumpy);
 		}else if (jump == doublejump) {
-			doubleJump(false, player_lari, 150, GameEngine.cameraHeight - player_lari.getHeight());
+			doubleJump(false, player_lari, GameEngine.cameraHeight - 180, jumpy);
 		}else if(jump > doublejump){
 			jump = doublejump;
 		}
@@ -182,8 +183,22 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == button){
+				if(pTouchArea == button)
+				{
 					++jump;
+					switch (jump) {
+					case 0:
+						break;
+					case 1:
+						rangeup = GameEngine.cameraHeight - 280;
+						break;
+					case 2:
+						rangeup = GameEngine.cameraHeight - 380;
+						break;
+					default:
+						jump = doublejump;
+						break;	
+					}
 				}
 			}
 			break;
@@ -192,9 +207,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		return false;
 	}
 	
-	private void doubleJump(Boolean status, GameAnim animjump, float rangeup, float rangedown) {
-		this.rangeup = (int) (this.rangeup - rangeup);
-		
+	private void doubleJump(Boolean status, GameAnim animjump, float rangedown, Float speed) {		
 		if(!status)
 		{
 			switch (move_player) {
@@ -203,22 +216,22 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 				{
 					move_player = down;
 				}
-				animjump.setY((float) (animjump.getY() - jumpy));
+				animjump.setY((float) (animjump.getY() - speed));
 				break;
 			case down:
 				if (animjump.getY() >= rangedown) {
 					jump =  netral;
 					move_player = up;
-					rangeup = GameEngineConfiguration.masterWidth;
+					rangeup = 0;
 				}
 				
-				animjump.setY((float) (animjump.getY() + jumpy));
+				animjump.setY((float) (animjump.getY() + speed));
 				break;
 			}
 		} 
 		else 
 		{
-			this.rangeup = (int) (this.rangeup - rangeup);
+			//this.rangeup = (int) (this.rangeup - rangeup);
 			
 			switch (move_player) {
 			case up:
@@ -232,7 +245,6 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 				if (animjump.getY() >= rangedown) {
 					jump = netral;
 					move_player = up;
-					this.status.setText(String.valueOf(jump));
 				}
 				
 				animjump.setY((float) (animjump.getY() + jumpy));
@@ -240,27 +252,5 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 			}
 		}
 	}
-
-	/*private void singleJump(GameAnim animjump, float rangeup, float rangedown) {	
-		this.rangeup = rangeup;
-		
-		switch (move_player) {
-		case up:
-			if(animjump.getY() <= rangeup)
-			{
-				move_player = down;
-			}
-			animjump.setY((float) (animjump.getY() - jumpy));
-			break;
-		case down:
-			if (animjump.getY() >= rangedown) {
-				jump =  netral;
-				move_player = up;
-			}
-			
-			animjump.setY((float) (animjump.getY() + jumpy));
-			break;
-		}		
-	}*/
 
 }
