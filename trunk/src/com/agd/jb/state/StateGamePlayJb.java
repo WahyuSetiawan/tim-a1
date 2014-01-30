@@ -17,7 +17,11 @@ import lib.engine.GameState;
 
 public class StateGamePlayJb extends GameState implements ValueState, ValueCamera, ValuePlay
 {
-	private GameSprite[] bg_depan_static = new GameSprite[2];
+	private GameSprite[] bg_floor_depan = new GameSprite[2];
+	private GameSprite bg_belakang1;
+	private GameSprite bg_belakang2;
+	private GameSprite bg_tengah;
+	
 	private GameSprite button;
 	
 	private GameText status;
@@ -43,7 +47,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	private float speed_decrease;
 	private float rangeup;
 	
-	public static final int SPEED = 5;
+	public static final int SPEED = 3;
 	
 	
 	public StateGamePlayJb(GameEngine engine) 
@@ -55,12 +59,17 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	@Override
 	public void initComponent() 
 	{
-		for (int loop = 0; loop < bg_depan_static.length; loop++)
+		bg_belakang1 	= new GameSprite(BG_BELAKANG1, engine);
+		bg_belakang2 	= new GameSprite(BG_BELAKANG2, engine);
+		bg_tengah		= new GameSprite(BG_TENGAH, engine);
+		
+		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
-			bg_depan_static[loop] = new GameSprite(BG_DEPAN_STATIC, engine);
+			bg_floor_depan[loop] = new GameSprite(BG_FLOOR_DEPAN, engine);
 		}
 		
-		player_run 			= new GameAnim(ANIM_PLAYER_LARI, engine);
+		player_run 				= new GameAnim(ANIM_PLAYER_LARI, engine);
+		
 		//player_single_jump 	= new GameAnim(ANIM_PLAYER_LOMPAT, engine);
 		//player_double_jump 	= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
 		//player_accident 	= new GameAnim(ANIM_PLAYER_LOMPAT, engine);
@@ -88,9 +97,13 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	@Override
 	protected void attach() 
 	{
-		for (int loop = 0; loop < bg_depan_static.length; loop++)
+		engine.scene.attachChild(bg_belakang1);
+		engine.scene.attachChild(bg_belakang2);
+		engine.scene.attachChild(bg_tengah);
+		
+		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
-			engine.scene.attachChild(bg_depan_static[loop]);
+			engine.scene.attachChild(bg_floor_depan[loop]);
 		}
 		
 		engine.scene.attachChild(player_run);
@@ -101,9 +114,13 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	@Override
 	protected void detach()
 	{
-		for (int loop = 0; loop < bg_depan_static.length; loop++)
+		bg_belakang1.detachSelf();
+		bg_belakang2.detachSelf();
+		bg_tengah.detachSelf();
+		
+		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
-			bg_depan_static[loop].detachSelf();
+			bg_floor_depan[loop].detachSelf();
 		}
 		
 		player_run.detachSelf();
@@ -114,8 +131,8 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	@Override
 	protected void setPosition() 
 	{
-		bg_depan_static[0].setX(0);
-		bg_depan_static[1].setX(bg_depan_static[0].getWidth());
+		bg_floor_depan[0].setX(0);
+		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
 		
 		player_run.setX(50);
 		player_run.setY(GameEngine.cameraHeight - 180);
@@ -138,20 +155,24 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 
 	@Override
 	protected void onUpdate() 
-	{		
+	{	
+		bg_belakang1.setX(bg_belakang1.getX() + SPEED);
+		bg_belakang2.setX(bg_belakang2.getX() + SPEED);
+		bg_tengah.setX(bg_tengah.getX() + SPEED);
+		
 		player_run.setX(player_run.getX() + SPEED);
 		
 		engine.camera.setCenter(player_run.getX() + GameEngine.cameraWidth / 2, engine.camera.getCenterY());
 		
 		
-		if (bg_depan_static[0].getX() + bg_depan_static[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+		if (bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
-			bg_depan_static[0].setX(bg_depan_static[1].getX()+ bg_depan_static[1].getWidth());
+			bg_floor_depan[0].setX(bg_floor_depan[1].getX()+ bg_floor_depan[1].getWidth());
 		}
 		
-		if (bg_depan_static[1].getX() + bg_depan_static[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
+		if (bg_floor_depan[1].getX() + bg_floor_depan[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
 		{
-			bg_depan_static[1].setX(bg_depan_static[0].getX() + bg_depan_static[0].getWidth());
+			bg_floor_depan[1].setX(bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth());
 		}
 		
 		if(jump > netral)
