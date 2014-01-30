@@ -1,14 +1,13 @@
 package com.agd.jb.state;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
 import com.agd.jb.state.value.ValueCamera;
 import com.agd.jb.state.value.ValuePlay;
 import com.agd.jb.state.value.ValueState;
 
-import android.R.integer;
 import android.view.KeyEvent;
-import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
@@ -28,14 +27,14 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	private int jump;
 	private int move_player;
 	
-	private static final int netral = 0;
-	private static final int up 	= 1;
-	private static final int down 	= 2;
+	private static final int netral 	= 0;
+	private static final int up 		= 1;
+	private static final int down 		= 2;
 	private static final int singlejump = 1;
 	private static final int doublejump = 2;
 	
 	private float jumpy;
-	
+	private float speeddecrease;
 	private float rangeup;
 	
 	public static final int SPEED = 5;
@@ -57,20 +56,21 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		player_lari = new GameAnim(ANIM_PLAYER_LARI, engine);
 		button = new GameSprite(BUTTON, engine);
 		
-		button.setAlpha(0f);
-		
-		//status = new GameText("00", 1, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		status = new GameText("0", 1, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
 	protected void init() 
 	{
 		engine.camera.setCenter(GameEngine.cameraWidth / 2, GameEngine.cameraHeight / 2);
-		player_lari.animate(50, true);
 		
-		jump = 0;
-		move_player = up;
-		jumpy = 10f;
+		player_lari.animate(43, true);
+		button.setAlpha(0f);
+		
+		speeddecrease 	= 0f;
+		jump 			= 0;
+		move_player 	= up;
+		jumpy 			= 9f;
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		engine.scene.attachChild(player_lari);
 		engine.hud.attachChild(button);	
-		//engine.hud.attachChild(status);
+		engine.hud.attachChild(status);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		player_lari.detachSelf();
 		button.detachSelf();
-		//status.detachSelf();
+		status.detachSelf();
 	}
 
 	@Override
@@ -105,11 +105,11 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		bg_depan_static[0].setX(0);
 		bg_depan_static[1].setX(bg_depan_static[0].getWidth());
 		
-		player_lari.setX(0);
+		player_lari.setX(50);
 		player_lari.setY(GameEngine.cameraHeight - 180);
 		
 		button.setPosition(Anchor.BOTTOM_RIGHT);
-		//status.setPosition(Anchor.TOP_RIGHT);
+		status.setPosition(Anchor.TOP_RIGHT);
 	}
 
 	@Override
@@ -142,13 +142,9 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 			bg_depan_static[1].setX(bg_depan_static[0].getX() + bg_depan_static[0].getWidth());
 		}
 		
-		if(jump == singlejump)
+		if(jump > netral)
 		{
-			doubleJump(true, player_lari,  GameEngine.cameraHeight - 180, jumpy);
-		}else if (jump == doublejump) {
-			doubleJump(false, player_lari, GameEngine.cameraHeight - 180, jumpy);
-		}else if(jump > doublejump){
-			jump = doublejump;
+			doubleJump(player_lari,  GameEngine.cameraHeight - 180, jumpy);
 		}
 	}
 
@@ -189,11 +185,11 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 					switch (jump) {
 					case 0:
 						break;
-					case 1:
+					case singlejump:
 						rangeup = GameEngine.cameraHeight - 280;
 						break;
-					case 2:
-						rangeup = GameEngine.cameraHeight - 380;
+					case doublejump:
+						rangeup = player_lari.getY() - 74;
 						break;
 					default:
 						jump = doublejump;
@@ -207,50 +203,33 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		return false;
 	}
 	
-	private void doubleJump(Boolean status, GameAnim animjump, float rangedown, Float speed) {		
-		if(!status)
+	private void doubleJump(GameAnim animjump, float rangedown, float speed) {		
+		if (speeddecrease == 0f){
+			speeddecrease = speed;
+			speeddecrease =- 2f;
+		}
+		else
 		{
-			switch (move_player) {
-			case up:
-				if(animjump.getY() <= rangeup)
-				{
-					move_player = down;
-				}
-				animjump.setY((float) (animjump.getY() - speed));
-				break;
-			case down:
-				if (animjump.getY() >= rangedown) {
-					jump =  netral;
-					move_player = up;
-					rangeup = 0;
-				}
-				
-				animjump.setY((float) (animjump.getY() + speed));
-				break;
+			speeddecrease =- 2f;
+		}
+		
+		switch (move_player) {
+		case up:
+			if(animjump.getY() <= rangeup)
+			{
+				move_player = down;
 			}
-		} 
-		else 
-		{
-			//this.rangeup = (int) (this.rangeup - rangeup);
-			
-			switch (move_player) {
-			case up:
-				if(animjump.getY() <= rangeup)
-				{
-					move_player = down;
-				}
-				animjump.setY((float) (animjump.getY() - jumpy));
-				break;
-			case down:
-				if (animjump.getY() >= rangedown) {
-					jump = netral;
-					move_player = up;
-				}
-				
-				animjump.setY((float) (animjump.getY() + jumpy));
-				break;
+			animjump.setY((float) (animjump.getY() - speed));
+			break;
+		case down:
+			if (animjump.getY() >= rangedown) {
+				jump =  netral;
+				move_player = up;
+				rangeup = 0;
 			}
+				
+			animjump.setY((float) (animjump.getY() + speed));
+			break;
 		}
 	}
-
 }
