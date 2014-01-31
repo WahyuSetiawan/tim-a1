@@ -27,6 +27,8 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 	private GameText status;
 	
 	private GameAnim player_run;
+	private GameAnim player_eva;
+	private GameAnim player_eva1;
 	
 	private int jump;
 	private int move_player;
@@ -57,6 +59,8 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		player_run 				= new GameAnim(ANIM_PLAYER_LARI, engine);
+		player_eva				= new GameAnim(ANIM_PLAYER_NABRAK, engine);
+		player_eva1				= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
 		
 		button = new GameSprite(BUTTON, engine);
 		
@@ -69,12 +73,14 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		engine.camera.setCenter(GameEngine.cameraWidth / 2, GameEngine.cameraHeight / 2);
 		
 		player_run.animate(SPEED_ANIM, true);
+		player_eva.animate(SPEED_ANIM, true);
+		player_eva1.animate(SPEED_ANIM, true);
 		button.setAlpha(0f);
 		
-		speed_decrease 	= 0f;
-		jump 			= 0;
+		speed_decrease 	= SPEED_DECREASE_INIT;
+		jump 			= NETRAL;
 		move_player 	= UP;
-		speed_jump 			= 9f;
+		speed_jump 		= SPEED_JUMP;
 	}
 
 	@Override
@@ -93,6 +99,9 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		engine.scene.attachChild(player_run);
+		engine.scene.attachChild(player_eva);
+		engine.scene.attachChild(player_eva1);
+		
 		engine.hud.attachChild(button);	
 		engine.hud.attachChild(status);
 	}
@@ -113,6 +122,9 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		player_run.detachSelf();
+		player_eva.detachSelf();
+		player_eva1.detachSelf();
+		
 		button.detachSelf();
 		status.detachSelf();
 	}
@@ -130,6 +142,9 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		
 		player_run.setX(50);
 		player_run.setY(GameEngine.cameraHeight - 180);
+		
+		player_eva.setPosition(player_run.getX() + player_run.getWidth(),GameEngine.cameraHeight - 180);
+		player_eva1.setPosition(player_eva.getX() + player_eva.getWidth(), GameEngine.cameraHeight - 180);
 		
 		button.setPosition(Anchor.BOTTOM_RIGHT);
 		status.setPosition(Anchor.TOP_RIGHT);
@@ -151,8 +166,9 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 	protected void onUpdate() 
 	{	
 		bg_belakang.setX(bg_belakang.getX() + SPEED);
-		
 		player_run.setX(player_run.getX() + SPEED);
+		player_eva.setX(player_eva.getX() + SPEED);
+		player_eva1.setX(player_eva1.getX() + SPEED);
 		
 		engine.camera.setCenter(player_run.getX() + GameEngine.cameraWidth / 2, engine.camera.getCenterY());
 		

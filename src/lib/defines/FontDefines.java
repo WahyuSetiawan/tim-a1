@@ -11,7 +11,7 @@ public interface FontDefines
 
 	final static ElementFont CONTAINER[] = 
 	{	
-		new ElementFont("font/animeace2_ital.ttf", 96, Color.RED),
+		new ElementFont("font/animeace2_ital.ttf", 61, Color.RED),
 		new ElementFont("font/animeace2_ital.ttf", 10, Color.GREEN),
 	};
 }
