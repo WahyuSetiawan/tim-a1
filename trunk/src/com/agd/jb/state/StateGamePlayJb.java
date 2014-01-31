@@ -1,13 +1,13 @@
 package com.agd.jb.state;
 
-import org.andengine.audio.sound.Sound;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
-import com.agd.jb.state.value.ValueCamera;
-import com.agd.jb.state.value.ValuePlay;
-import com.agd.jb.state.value.ValueState;
 
-import android.R.integer;
+import com.agd.jb.state.value.ValueAction;
+import com.agd.jb.state.value.ValueCamera;
+import com.agd.jb.state.value.ValuePlayer;
+import com.agd.jb.state.value.StateDefine;
+
 import android.view.KeyEvent;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
@@ -16,40 +16,24 @@ import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
 
-public class StateGamePlayJb extends GameState implements ValueState, ValueCamera, ValuePlay
+public class StateGamePlayJb extends GameState implements StateDefine, ValueCamera, ValuePlayer, ValueAction
 {
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
-	//private GameSprite[] bg_belakang = new GameSprite[2];
+	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite bg_belakang;
-	private GameSprite[] bg_tengah	= new GameSprite[2];
 	
 	private GameSprite button;
 	
 	private GameText status;
 	
-	private GameAnim player;
 	private GameAnim player_run;
-	private GameAnim player_single_jump;
-	private GameAnim player_double_jump;
-	private GameAnim player_fall;
-	private GameAnim player_attach;
-	private GameAnim player_accident;
 	
 	private int jump;
 	private int move_player;
 	
-	private static final int netral 	= 0;
-	private static final int up 		= 1;
-	private static final int down 		= 2;
-	private static final int singlejump = 1;
-	private static final int doublejump = 2;
-	
-	private float jumpy;
+	private float speed_jump;
 	private float speed_decrease;
 	private float rangeup;
-	
-	public static final float SPEED = 2.7f;
-	
 	
 	public StateGamePlayJb(GameEngine engine) 
 	{
@@ -61,18 +45,6 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	public void initComponent() 
 	{
 		bg_belakang 	= new GameSprite(BG_BELAKANG, engine);
-		
-		//bg_tengah		= new GameSprite(BG_TENGAH, engine);
-		
-		/*for (int loop = 0; loop < bg_belakang1.length; loop++)
-		{
-			bg_belakang1[loop] = new GameSprite(BG_BELAKANG1, engine);
-		}*/
-		
-		/*for (int loop = 0; loop < bg_belakang2.length; loop++)
-		{
-			bg_belakang2[loop] = new GameSprite(BG_BELAKANG2, engine);
-		}*/
 		
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
@@ -86,11 +58,6 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		
 		player_run 				= new GameAnim(ANIM_PLAYER_LARI, engine);
 		
-		//player_single_jump 	= new GameAnim(ANIM_PLAYER_LOMPAT, engine);
-		//player_double_jump 	= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
-		//player_accident 	= new GameAnim(ANIM_PLAYER_LOMPAT, engine);
-		//player_fall			= new GameAnim(ANIM_PLAYER_LUBANG, engine);
-		
 		button = new GameSprite(BUTTON, engine);
 		
 		status = new GameText("0", 1, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
@@ -101,31 +68,19 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	{
 		engine.camera.setCenter(GameEngine.cameraWidth / 2, GameEngine.cameraHeight / 2);
 		
-		player_run.animate(43, true);
+		player_run.animate(SPEED_ANIM, true);
 		button.setAlpha(0f);
 		
 		speed_decrease 	= 0f;
 		jump 			= 0;
-		move_player 	= up;
-		jumpy 			= 9f;
+		move_player 	= UP;
+		speed_jump 			= 9f;
 	}
 
 	@Override
 	protected void attach() 
 	{
 		engine.scene.attachChild(bg_belakang);
-		
-		//engine.scene.attachChild(bg_tengah);
-		
-		/*for (int loop = 0; loop < bg_belakang1.length; loop++)
-		{
-			engine.scene.attachChild(bg_belakang1[loop]);
-		}*/
-		
-		/*for (int loop = 0; loop < bg_belakang2.length; loop++)
-		{
-			engine.scene.attachChild(bg_belakang2[loop]);
-		}*/
 		
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
@@ -146,17 +101,6 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	protected void detach()
 	{
 		bg_belakang.detachSelf();
-		//bg_tengah.detachSelf();
-		
-		/*for (int loop = 0; loop < bg_belakang1.length; loop++)
-		{
-			bg_belakang1[loop].detachSelf();
-		}*/
-		
-		/*for (int loop = 0; loop < bg_belakang2.length; loop++)
-		{
-			bg_belakang2[loop].detachSelf();
-		}*/
 		
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
@@ -176,11 +120,7 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	@Override
 	protected void setPosition() 
 	{
-		//bg_belakang1[0].setX(0);
-		//bg_belakang1[1].setX(bg_belakang1[0].getWidth());
-		
-		//bg_belakang2[0].setX(0);
-		//bg_belakang2[1].setX(bg_belakang2[0].getWidth());
+		bg_belakang.setPosition(0,0);
 		
 		bg_tengah[0].setX(0);
 		bg_tengah[1].setX(bg_tengah[0].getWidth());
@@ -211,28 +151,10 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 	protected void onUpdate() 
 	{	
 		bg_belakang.setX(bg_belakang.getX() + SPEED);
-		//bg_tengah.setX(bg_tengah.getX() + SPEED);
 		
 		player_run.setX(player_run.getX() + SPEED);
 		
 		engine.camera.setCenter(player_run.getX() + GameEngine.cameraWidth / 2, engine.camera.getCenterY());
-		/*if (bg_belakang1[0].getX() + bg_belakang1[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_belakang1[0].setX(bg_belakang1[1].getX() + bg_belakang1[1].getWidth());
-		}
-		if (bg_belakang1[1].getX() + bg_belakang1[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
-		{
-			bg_belakang1[1].setX(bg_belakang1[0].getX() + bg_belakang1[0].getWidth());
-		}*/
-		
-		/*if (bg_belakang2[0].getX() + bg_belakang2[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_belakang2[0].setX(bg_belakang2[1].getX() + bg_belakang2[1].getWidth());
-		}
-		if (bg_belakang2[1].getX() + bg_belakang2[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_belakang2[1].setX(bg_belakang2[0].getX() + bg_belakang2[0].getWidth());
-		}*/
 		
 		if (bg_tengah[0].getX() + bg_tengah[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
@@ -252,9 +174,9 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 			bg_floor_depan[1].setX(bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth());
 		}
 		
-		if(jump > netral)
+		if(jump > NETRAL)
 		{
-			doubleJump(player_run,  GameEngine.cameraHeight - 180, jumpy);
+			doubleJump(player_run,  GameEngine.cameraHeight - 180, speed_jump);
 		}
 	}
 
@@ -295,14 +217,14 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 					switch (jump) {
 					case 0:
 						break;
-					case singlejump:
+					case SINGLE_JUMP:
 						rangeup = GameEngine.cameraHeight - 260;
 						break;
-					case doublejump:
+					case DOUBLE_JUMP:
 						rangeup = player_run.getY() - 74;
 						break;
 					default:
-						jump = doublejump;
+						jump = DOUBLE_JUMP;
 						break;	
 					}
 				}
@@ -324,17 +246,17 @@ public class StateGamePlayJb extends GameState implements ValueState, ValueCamer
 		}
 		
 		switch (move_player) {
-		case up:
+		case UP:
 			if(animjump.getY() <= rangeup)
 			{
-				move_player = down;
+				move_player = DOWN;
 			}
 			animjump.setY((float) (animjump.getY() - speed));
 			break;
-		case down:
+		case DOWN:
 			if (animjump.getY() >= rangedown) {
-				jump =  netral;
-				move_player = up;
+				jump =  NETRAL;
+				move_player = UP;
 				rangeup = 0;
 			}
 				

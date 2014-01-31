@@ -12,10 +12,10 @@ public interface AnimDefines
 	
 	public final static ElementAnim CONTAINER[] = 
 	{
-		new ElementAnim(7, 1, "gfx/gameplay/player_lari.png"),
-		new ElementAnim(3, 1, "gfx/gameplay/player_jump.png"),
-		new ElementAnim(7, 1, "gfx/gameplay/player_double_jump.png"),
-		new ElementAnim(2, 1, "gfx/gameplay/player_lubang"),
-		new ElementAnim(6, 1, "gfx/gameplay/player_nabrak"),
+		new ElementAnim(9, 1, "gfx/gameplay/player/player_lari.png"),
+		new ElementAnim(3, 1, "gfx/gameplay/player/player_jump.png"),
+		new ElementAnim(7, 1, "gfx/gameplay/player/player_double_jump.png"),
+		new ElementAnim(2, 1, "gfx/gameplay/player/player_lubang.png"),
+		new ElementAnim(6, 1, "gfx/gameplay/player/player_nabrak.png"),
 	};
 }
