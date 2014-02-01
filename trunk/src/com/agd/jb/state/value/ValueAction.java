@@ -11,6 +11,9 @@ public interface ValueAction {
 	static final float DISAPPEAR 	= 0f;
 	static final float ARISE		= 1f; 
 	
+	static final float SINGLE_JUMP_RANGE	= 300;
+	static final float DOUBLE_JUMP_RANGE 	= 400;
+	
 	static final float SPEED_JUMP	= 0.33f;
 	
 	static final float SPEED_DECREASE_INIT = 0f;
