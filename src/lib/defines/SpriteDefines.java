@@ -2,7 +2,7 @@ package lib.defines;
 
 import lib.element.ElementSprite;
 
-public interface SpriteDefines 
+public interface SpriteDefines
 {
 	int BG_BELAKANG		= 0;
 	int BG_TENGAH		= BG_BELAKANG + 1;
@@ -20,13 +20,13 @@ public interface SpriteDefines
 	
 	public final static ElementSprite CONTAINER[] = 
 	{
-		new ElementSprite("gfx/gameplay/background/bg_belakang.png"),
-		new ElementSprite("gfx/gameplay/background/3. bg_tengah.png"),
+		new ElementSprite(GameEngineConfiguration.masterWidth, GameEngineConfiguration.masterHeight, "gfx/gameplay/background/bg_belakang.png"),
+		new ElementSprite(GameEngineConfiguration.masterWidth, GameEngineConfiguration.masterHeight, "gfx/gameplay/background/3. bg_tengah.png"),
 		new ElementSprite("gfx/gameplay/background/bg_floor_depan.png"),
 		new ElementSprite("gfx/gameplay/object/bg_pohon.png"),
 		new ElementSprite("gfx/gameplay/object/bg_semak.png"),
-		new ElementSprite("gfx/menu/background/bg_fill.png"),
-		new ElementSprite("gfx/menu/background/bg_menu.png"),
+		new ElementSprite(GameEngineConfiguration.masterWidth, GameEngineConfiguration.masterHeight, "gfx/menu/background/bg_fill.png"),
+		new ElementSprite(GameEngineConfiguration.masterWidth, GameEngineConfiguration.masterHeight, "gfx/menu/background/bg_menu.png"),
 		new ElementSprite("gfx/gameplay/object/button.png"),
 		new ElementSprite("gfx/gameplay/object/pointer.png"),
 		new ElementSprite("gfx/gameplay/object/BATU BESAR.png"),

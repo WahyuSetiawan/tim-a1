@@ -1,14 +1,18 @@
 package com.agd.jb.state;
 
+import org.andengine.entity.modifier.JumpModifier;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
 
+import com.agd.jb.state.activity.PlayerJump;
 import com.agd.jb.state.value.ValueAction;
 import com.agd.jb.state.value.ValueCamera;
 import com.agd.jb.state.value.ValuePlayer;
 import com.agd.jb.state.value.StateDefine;
 
 import android.view.KeyEvent;
+import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
@@ -16,19 +20,21 @@ import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
 
-public class StateGamePlayJb extends GameState implements StateDefine, ValueCamera, ValuePlayer, ValueAction
+public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueAction
 {
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite bg_belakang;
+	
+	private PlayerJump double_jump;
 	
 	private GameSprite button;
 	
 	private GameText status;
 	
 	private GameAnim player_run;
-	private GameAnim player_eva;
-	private GameAnim player_eva1;
+	//private GameAnim player_eva;
+	//private GameAnim player_eva1;
 	
 	private int jump;
 	private int move_player;
@@ -37,10 +43,11 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 	private float speed_decrease;
 	private float rangeup;
 	
+	private float lowy = 320f;
+	
 	public StateGamePlayJb(GameEngine engine) 
 	{
 		super(engine);
-	
 	}
 
 	@Override
@@ -59,8 +66,8 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		player_run 				= new GameAnim(ANIM_PLAYER_LARI, engine);
-		player_eva				= new GameAnim(ANIM_PLAYER_NABRAK, engine);
-		player_eva1				= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
+		//player_eva				= new GameAnim(ANIM_PLAYER_NABRAK, engine);
+		//player_eva1				= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
 		
 		button = new GameSprite(BUTTON, engine);
 		
@@ -73,8 +80,8 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		engine.camera.setCenter(GameEngine.cameraWidth / 2, GameEngine.cameraHeight / 2);
 		
 		player_run.animate(SPEED_ANIM, true);
-		player_eva.animate(SPEED_ANIM, true);
-		player_eva1.animate(SPEED_ANIM, true);
+		//player_eva.animate(SPEED_ANIM, true);
+		//player_eva1.animate(SPEED_ANIM, true);
 		button.setAlpha(0f);
 		
 		speed_decrease 	= SPEED_DECREASE_INIT;
@@ -99,8 +106,8 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		engine.scene.attachChild(player_run);
-		engine.scene.attachChild(player_eva);
-		engine.scene.attachChild(player_eva1);
+		//engine.scene.attachChild(player_eva);
+		//engine.scene.attachChild(player_eva1);
 		
 		engine.hud.attachChild(button);	
 		engine.hud.attachChild(status);
@@ -122,8 +129,8 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		player_run.detachSelf();
-		player_eva.detachSelf();
-		player_eva1.detachSelf();
+		//player_eva.detachSelf();
+		//player_eva1.detachSelf();
 		
 		button.detachSelf();
 		status.detachSelf();
@@ -141,10 +148,11 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
 		
 		player_run.setX(50);
-		player_run.setY(GameEngine.cameraHeight - 180);
+		player_run.setY(lowy);
 		
-		player_eva.setPosition(player_run.getX() + player_run.getWidth(),GameEngine.cameraHeight - 180);
-		player_eva1.setPosition(player_eva.getX() + player_eva.getWidth(), GameEngine.cameraHeight - 180);
+		//player_eva.setPosition(player_run.getX() + player_run.getWidth(),GameEngine.cameraHeight - 180);
+		//player_eva1.setPosition(player_eva.getX() + player_eva.getWidth(), GameEngine.cameraHeight - 180);
+		
 		
 		button.setPosition(Anchor.BOTTOM_RIGHT);
 		status.setPosition(Anchor.TOP_RIGHT);
@@ -154,6 +162,7 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 	protected void registerTouch() 
 	{
 		engine.hud.registerTouchArea(button);
+		
 	}
 
 	@Override
@@ -167,8 +176,6 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 	{	
 		bg_belakang.setX(bg_belakang.getX() + SPEED);
 		player_run.setX(player_run.getX() + SPEED);
-		player_eva.setX(player_eva.getX() + SPEED);
-		player_eva1.setX(player_eva1.getX() + SPEED);
 		
 		engine.camera.setCenter(player_run.getX() + GameEngine.cameraWidth / 2, engine.camera.getCenterY());
 		
@@ -190,10 +197,6 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 			bg_floor_depan[1].setX(bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth());
 		}
 		
-		if(jump > NETRAL)
-		{
-			doubleJump(player_run,  GameEngine.cameraHeight - 180, speed_jump);
-		}
 	}
 
 	@Override
@@ -234,10 +237,11 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 					case 0:
 						break;
 					case SINGLE_JUMP:
-						rangeup = GameEngine.cameraHeight - 260;
+						player_run.registerEntityModifier(new JumpModifier(0.47f, player_run.getX(), player_run.getX() + 100, player_run.getY(), lowy, 100));
+						jump = 0;
 						break;
 					case DOUBLE_JUMP:
-						rangeup = player_run.getY() - 74;
+						player_run.registerEntityModifier(new JumpModifier(0.47f, player_run.getX(), player_run.getX() + 100, player_run.getY(), lowy, 200));
 						break;
 					default:
 						jump = DOUBLE_JUMP;
@@ -249,35 +253,5 @@ public class StateGamePlayJb extends GameState implements StateDefine, ValueCame
 		}
 		
 		return false;
-	}
-	
-	private void doubleJump(GameAnim animjump, float rangedown, float speed) {		
-		if (speed_decrease == 0f){
-			speed_decrease = speed;
-			speed_decrease =- 2f;
-		}
-		else
-		{
-			speed_decrease =- 2f;
-		}
-		
-		switch (move_player) {
-		case UP:
-			if(animjump.getY() <= rangeup)
-			{
-				move_player = DOWN;
-			}
-			animjump.setY((float) (animjump.getY() - speed));
-			break;
-		case DOWN:
-			if (animjump.getY() >= rangedown) {
-				jump =  NETRAL;
-				move_player = UP;
-				rangeup = 0;
-			}
-				
-			animjump.setY((float) (animjump.getY() + speed));
-			break;
-		}
 	}
 }
