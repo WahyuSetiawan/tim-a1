@@ -1,6 +1,5 @@
 package lib.defines;
 
-import android.R.integer;
 import lib.element.ElementSprite;
 
 public interface SpriteDefines
@@ -12,14 +11,14 @@ public interface SpriteDefines
 	int BG_SEMAK		= BG_POHON + 1;
 	int BG_MENU_FILL 	= BG_SEMAK + 1;
 	int BG_MENU 		= BG_MENU_FILL + 1;
-	int BUTTON			= BG_MENU + 1;
-	int POINTER			= BUTTON +1;
+	int POINTER			= BG_MENU +1;
 	int BIG_ROCK		= POINTER + 1;
 	int HOLE			= BIG_ROCK + 1;
 	int TREE			= HOLE + 1;
 	int SEMAK			= TREE + 1;
 	int MENU			= SEMAK + 1;
 	int BUTTON_MENU		= MENU +1;
+	int LOADING			= BUTTON_MENU +1;
 	
 	int backgroundHeight 	= GameEngineConfiguration.masterHeight;
 	int backgroundWidth 	= GameEngineConfiguration.masterWidth;	
@@ -33,7 +32,6 @@ public interface SpriteDefines
 		new ElementSprite("gfx/gameplay/object/bg_semak.png"),
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/menu/background/bg_fill.png"),
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/menu/background/bg_menu.png"),
-		new ElementSprite("gfx/gameplay/object/button.png"),
 		new ElementSprite( 60, 106, "gfx/gameplay/player/pointer.png"),
 		new ElementSprite("gfx/gameplay/object/BATU BESAR.png"),
 		new ElementSprite("gfx/gameplay/object/LOBANG.png"),
@@ -41,5 +39,6 @@ public interface SpriteDefines
 		new ElementSprite("gfx/gameplay/object/SEMAK.png"),
 		new ElementSprite("gfx/gameplay/menu/menu.png"),
 		new ElementSprite("gfx/gameplay/menu/button_menu.png"),
+		new ElementSprite("gfx/loading/loading.jpg"),
 	};
 }

@@ -17,24 +17,26 @@ import lib.engine.GameState;
 
 public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueAction
 {
+	private GameSprite bg_belakang;
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite pointer;
 	
-	private GameSprite button;
 	private GameSprite button_menu;
 	private GameSprite menu;
 	
 	private GameText status;
 	
 	private GameAnim player_run;
-	//private GameAnim player_eva;
-	//private GameAnim player_eva1;
+	private GameAnim player_jump;
+	private GameAnim player_doublejump;
+	private GameAnim player_fall;
+	private GameAnim player_accident;
 	
 	private boolean jump;
 	private int jump_player;
 	private int move_player;
-	private int i;
+	private int time;
 	
 	private float speed_jump;
 	private int speed_decrease;
@@ -49,6 +51,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	public void initComponent() 
 	{
+		bg_belakang		= new GameSprite(BG_BELAKANG, engine);
+		
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
 			bg_tengah[loop] = new GameSprite(BG_TENGAH, engine);
@@ -61,11 +65,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		pointer 		= new GameSprite(POINTER, engine);
 		
-		player_run 		= new GameAnim(ANIM_PLAYER_LARI, engine);
-		//player_eva				= new GameAnim(ANIM_PLAYER_NABRAK, engine);
-		//player_eva1				= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
+		player_run 			= new GameAnim(ANIM_PLAYER_LARI, engine);
+		player_accident		= new GameAnim(ANIM_PLAYER_NABRAK, engine);
+		player_jump			= new GameAnim(ANIM_PLAYER_LOMPAT, engine);
+		player_doublejump	= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
+		player_fall			= new GameAnim(ANIM_PLAYER_LUBANG, engine);
 		
-		button			= new GameSprite(BUTTON, engine);
 		button_menu 	= new GameSprite(BUTTON_MENU, engine);
 		menu			= new GameSprite(MENU, engine);
 		
@@ -75,13 +80,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void init() 
 	{
-		engine.camera.setCenter(GameEngine.cameraWidth / 2, GameEngine.cameraHeight / 2);
+		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
 		player_run.animate(SPEED_ANIM, true);
-		//player_eva.animate(SPEED_ANIM, true);
-		//player_eva1.animate(SPEED_ANIM, true);
+		player_run.setVisible(true);
+		player_fall.animate(SPEED_ANIM, true);
+		player_fall.setVisible(false);
+		player_jump.animate(SPEED_ANIM, true);
+		player_jump.setVisible(false);
+		player_doublejump.animate(SPEED_ANIM, true);
+		player_doublejump.setVisible(false);
+		player_accident.animate(SPEED_ANIM, true);
+		player_accident.setVisible(false);
 		
-		button.setAlpha(0f);
 		menu.setVisible(false);
 		button_menu.setVisible(false);
 		pointer.setAlpha(DISAPPEAR);
@@ -91,12 +102,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		move_player 	= UP;
 		speed_decrease 	= 0;
 		speed_jump 			= 4.25f;
-		i=0;
+		time=0;
 	}
 
 	@Override
 	protected void attach() 
 	{
+		engine.scene.attachChild(bg_belakang);
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
 			engine.scene.attachChild(bg_tengah[loop]);
@@ -109,18 +121,21 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		engine.scene.attachChild(pointer);
 		pointer.attachChild(player_run);
-		//engine.scene.attachChild(player_eva);
-		//engine.scene.attachChild(player_eva1);
+		pointer.attachChild(player_accident);
+		pointer.attachChild(player_fall);
+		pointer.attachChild(player_jump);
+		pointer.attachChild(player_doublejump);
 		
 		engine.hud.attachChild(menu);
-		engine.hud.attachChild(button);	
 		menu.attachChild(button_menu);
+		
 		engine.hud.attachChild(status);
 	}
 
 	@Override
 	protected void detach()
 	{		
+		bg_belakang.detachSelf();
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
 			bg_tengah[loop].detachSelf();
@@ -134,18 +149,21 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		pointer.detachSelf();
 		
 		player_run.detachSelf();
-		//player_eva.detachSelf();
-		//player_eva1.detachSelf();
+		player_fall.detachSelf();
+		player_jump.detachSelf();
+		player_doublejump.detachSelf();
+		player_accident.detachSelf();
 		
 		menu.detachSelf();
 		button_menu.detachSelf();
-		button.detachSelf();
 		status.detachSelf();
 	}
 
 	@Override
 	protected void setPosition() 
-	{		
+	{
+		bg_belakang.setPosition(139,0);
+		
 		bg_tengah[0].setX(0);
 		bg_tengah[1].setX(bg_tengah[0].getWidth());
 		
@@ -154,12 +172,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		pointer.setX(PLAYERX);
 		pointer.setY(PLAYERY);
+		
 		player_run.setPosition(-37,0);
-		//player_eva.setPosition(player_run.getX() + player_run.getWidth(),GameEngine.cameraHeight - 180);
-		//player_eva1.setPosition(player_eva.getX() + player_eva.getWidth(), GameEngine.cameraHeight - 180);
+		player_fall.setPosition(-37,0);
+		player_jump.setPosition(-37,0);
+		player_doublejump.setPosition(-37,0);
+		player_accident.setPosition(-37,0);
 		
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
-		button.setPosition(Anchor.BOTTOM_RIGHT);
 		status.setPosition(Anchor.TOP_RIGHT);
 		menu.setPosition(Anchor.CENTER);
 	}
@@ -167,29 +187,29 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void registerTouch() 
 	{
-		engine.hud.registerTouchArea(button);
+		engine.scene.registerTouchArea(bg_belakang);
 		engine.hud.registerTouchArea(menu);
 	}
 
 	@Override
 	protected void unregisterTouch() 
 	{
-		engine.unregisterHudTouch(button);
+		engine.unregisterSceneTouch(bg_belakang);
 		engine.unregisterHudTouch(menu);
 	}
 
 	@Override
 	protected void onUpdate()
 	{	
+		bg_belakang.setX(bg_belakang.getX() + SPEED);
 		pointer.setX(pointer.getX() + SPEED);
 		
-		engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2, engine.camera.getCenterY());
+		engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2 - 60, engine.camera.getCenterY());
 		
 		if (bg_tengah[0].getX() + bg_tengah[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
 			bg_tengah[0].setX(bg_tengah[1].getX() + bg_tengah[1].getWidth());
-		}
-		if (bg_tengah[1].getX() + bg_tengah[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+		}else if (bg_tengah[1].getX() + bg_tengah[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
 			bg_tengah[1].setX(bg_tengah[0].getX() + bg_tengah[0].getWidth());
 		}
@@ -197,11 +217,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		if (bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
 			bg_floor_depan[0].setX(bg_floor_depan[1].getX()+ bg_floor_depan[1].getWidth());
-		}
-		if (bg_floor_depan[1].getX() + bg_floor_depan[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
+		}else if (bg_floor_depan[1].getX() + bg_floor_depan[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
 		{
 			bg_floor_depan[1].setX(bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth());
 		}
+		
 		if(jump)
 		{
 			doubleJump(pointer, PLAYERY, speed_jump, 13);
@@ -249,31 +269,34 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == button)
+				if(pTouchArea == bg_belakang)
 				{
-					jump = true;
-					++jump_player;
-					status.setText(String.valueOf(jump));
-					
-					switch (jump_player) {
-					case 0:
-						break;
-					case SINGLE_JUMP:
-						if(!menu.isVisible())
-						{
-							range_up = GameEngine.cameraHeight - 300;
-							status.setText(String.valueOf(jump_player));
+					if(!menu.isVisible())
+					{
+						jump = true;
+						++jump_player;
+						
+						switch (jump_player) {
+						case 0:
+							break;
+						case SINGLE_JUMP:
+							
+								player_run.setVisible(false);
+								player_jump.setVisible(true);
+								range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
+							
+							break;
+						case DOUBLE_JUMP:
+								if(!player_jump.isVisible()){
+									player_jump.setVisible(false);
+									player_doublejump.setVisible(true);
+								range_up = GameEngine.cameraHeight - DOUBLE_JUMP_RANGE;
+							}
+							break;
+						default:
+						jump_player=NETRAL;
+							break;
 						}
-						break;
-					case DOUBLE_JUMP:
-						if(!menu.isVisible()){
-							range_up = GameEngine.cameraHeight - 400;
-							status.setText(String.valueOf(jump_player));
-						}
-						break;
-					default:
-					jump_player=NETRAL;
-						break;
 					}
 				}
 				else if(pTouchArea == menu)
@@ -284,6 +307,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 					}
 				}
 			}
+			
 			break;
 		}
 		
@@ -306,11 +330,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			}
 			if(spritejump.getY() <= range_up)
 			{
-				if(i == timeup){
-					i=0;
+				if(time == timeup){
+					time=0;
 					move_player = DOWN;
 				}
-				i++;
+				time++;
 			}else {
 				spritejump.setY((float) (spritejump.getY() - speed));
 			}
@@ -319,6 +343,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			speed_decrease++;
 			
 			if (spritejump.getY() >= rangedown) {
+				if(player_jump.isVisible()){
+					player_jump.setVisible(false);
+				}else{
+					player_doublejump.setVisible(false);
+				}
+				player_run.setVisible(true);
 				jump =  false;
 				pointer.setY(PLAYERY);
 				jump_player = NETRAL;
