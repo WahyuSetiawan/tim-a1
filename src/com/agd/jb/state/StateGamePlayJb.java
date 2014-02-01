@@ -83,14 +83,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
 		player_run.animate(SPEED_ANIM, true);
-		player_run.setVisible(true);
 		player_fall.animate(SPEED_ANIM, true);
-		player_fall.setVisible(false);
-		player_jump.animate(SPEED_ANIM, true);
-		player_jump.setVisible(false);
-		player_doublejump.animate(SPEED_ANIM, true);
-		player_doublejump.setVisible(false);
 		player_accident.animate(SPEED_ANIM, true);
+		
+		player_run.setVisible(true);
+		player_fall.setVisible(false);
+		player_jump.setVisible(false);
+		player_doublejump.setVisible(false);
 		player_accident.setVisible(false);
 		
 		menu.setVisible(false);
@@ -101,7 +100,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		jump_player		= NETRAL;
 		move_player 	= UP;
 		speed_decrease 	= 0;
-		speed_jump 			= 4.25f;
+		speed_jump 		= 4.25f;
 		time=0;
 	}
 
@@ -226,7 +225,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		{
 			doubleJump(pointer, PLAYERY, speed_jump, 13);
 		}
-		
+		status.setText(String.valueOf(move_player));
 	}
 
 	@Override
@@ -269,42 +268,37 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == bg_belakang)
+				if(pTouchArea == bg_belakang && !menu.isVisible())
 				{
-					if(!menu.isVisible())
-					{
-						jump = true;
-						++jump_player;
+					jump = true;
+					++jump_player;
+					
+					switch (jump_player) {
+					case 0:
+						break;
+					case SINGLE_JUMP:
+							player_run.setVisible(false);
+							player_jump.animate(DURATION_SINGLE, false);
+							player_jump.setVisible(true);
+							range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
 						
-						switch (jump_player) {
-						case 0:
-							break;
-						case SINGLE_JUMP:
-							
-								player_run.setVisible(false);
-								player_jump.setVisible(true);
-								range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
-							
-							break;
-						case DOUBLE_JUMP:
-								if(!player_jump.isVisible()){
-									player_jump.setVisible(false);
-									player_doublejump.setVisible(true);
-								range_up = GameEngine.cameraHeight - DOUBLE_JUMP_RANGE;
+						break;
+					case DOUBLE_JUMP:
+							if(player_jump.isVisible() && move_player == UP){
+								player_jump.setVisible(false);
+								player_doublejump.animate(DURATION_DOUBLE, false);
+								player_doublejump.setVisible(true);
 							}
-							break;
-						default:
-						jump_player=NETRAL;
-							break;
-						}
+							range_up = GameEngine.cameraHeight - DOUBLE_JUMP_RANGE;
+						break;
+					default:
+						jump_player=SINGLE_JUMP;
+						break;
 					}
 				}
-				else if(pTouchArea == menu)
+				else if(pTouchArea == menu && menu.isVisible())
 				{
-					if(menu.isVisible()) 
-					{
-						exitState(STATE_MENU);
-					}
+					exitState(STATE_MENU);
 				}
 			}
 			
@@ -350,7 +344,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				}
 				player_run.setVisible(true);
 				jump =  false;
-				pointer.setY(PLAYERY);
+				spritejump.setY(PLAYERY);
 				jump_player = NETRAL;
 				move_player = UP;
 			}
