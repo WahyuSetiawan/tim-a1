@@ -8,6 +8,7 @@ import com.agd.jb.state.value.StateDefine;
 
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
+
 import android.view.KeyEvent;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
@@ -16,7 +17,7 @@ import lib.engine.GameEngine;
 import lib.engine.GameState;
 
 public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlayer, StateDefine, ValueMenu
-{	
+{		
 	private GameSprite bg_menu;
 	private GameSprite bg_fill;
 	private GameSprite bg_back;
@@ -50,7 +51,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 
 	@Override
 	protected void attach() 
-	{
+	{		
 		engine.scene.attachChild(bg_back);
 		engine.scene.attachChild(bg_front);
 		engine.scene.attachChild(bg_fill);
