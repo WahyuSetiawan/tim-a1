@@ -5,7 +5,6 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
 
-import com.agd.jb.state.activity.PlayerJump;
 import com.agd.jb.state.value.ValueAction;
 import com.agd.jb.state.value.ValueCamera;
 import com.agd.jb.state.value.ValuePlayer;
@@ -26,8 +25,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite bg_belakang;
 	
-	private PlayerJump double_jump;
-	
 	private GameSprite button;
 	
 	private GameText status;
@@ -43,7 +40,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private float speed_decrease;
 	private float rangeup;
 	
-	private float lowy = 320f;
 	
 	public StateGamePlayJb(GameEngine engine) 
 	{
