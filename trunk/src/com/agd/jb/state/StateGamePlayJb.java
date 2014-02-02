@@ -1,5 +1,7 @@
 package com.agd.jb.state;
 
+import java.util.Random;
+
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.entity.util.ScreenCapture;
@@ -30,12 +32,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite pointer;
-	
+	private GameSprite pohon;
+	private GameSprite pohon2;
+	private GameSprite semak;
+	private GameSprite semak2;	
 	private GameSprite button_menu;
 	private GameSprite menu;
+	private GameSprite big_rock;
+	private GameSprite small_rock;
+	private GameSprite fallen_tree;
 	
 	private GameText distance;
 	private GameText score;
+	private Random num = new Random();
 	
 	private GameAnim player_run;
 	private GameAnim player_jump;
@@ -77,6 +86,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}
 		
 		pointer 		= new GameSprite(POINTER, engine);
+		pohon			= new GameSprite(BG_POHON, engine);
+		pohon2			= new GameSprite(BG_POHON, engine);
+		semak			= new GameSprite(BG_SEMAK, engine);
+		semak2			= new GameSprite(BG_SEMAK, engine);
+		
+		big_rock		= new GameSprite(BIG_ROCK, engine);
+		small_rock		= new GameSprite(SMALL_ROCK, engine);
+		fallen_tree		= new GameSprite(TREE, engine);
 		
 		player_run 			= new GameAnim(ANIM_PLAYER_LARI, engine);
 		player_accident		= new GameAnim(ANIM_PLAYER_NABRAK, engine);
@@ -119,6 +136,16 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		speed_jump 		= SPEED_JUMP;
 		time			= 0;
 		distance_player	= 0;
+		
+		pohon.setX(engine.camera.getXMin());
+		pohon2.setX(engine.camera.getXMin());
+		semak.setX(engine.camera.getXMin());
+		semak2.setX(engine.camera.getXMin());
+		
+		big_rock.setX(engine.camera.getXMin());
+		small_rock.setX(engine.camera.getXMin());
+		fallen_tree.setX(engine.camera.getXMin());
+		
 	}
 
 	@Override
@@ -129,6 +156,15 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		{
 			engine.scene.attachChild(bg_tengah[loop]);
 		}
+		
+		engine.scene.attachChild(pohon);
+		engine.scene.attachChild(semak);
+		engine.scene.attachChild(pohon2);
+		engine.scene.attachChild(semak2);
+		
+		engine.scene.attachChild(big_rock);
+		engine.scene.attachChild(small_rock);
+		engine.scene.attachChild(fallen_tree);
 		
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
@@ -156,6 +192,15 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		{
 			bg_tengah[loop].detachSelf();
 		}
+		
+		pohon.detachSelf();
+		semak.detachSelf();
+		pohon2.detachSelf();
+		semak2.detachSelf();
+		
+		big_rock.detachSelf();
+		small_rock.detachSelf();
+		fallen_tree.detachSelf();
 		
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
@@ -240,6 +285,65 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}else if (bg_tengah[1].getX() + bg_tengah[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
 			bg_tengah[1].setX(bg_tengah[0].getX() + bg_tengah[0].getWidth());
+		}
+		
+		
+		switch (num.nextInt(50)) {
+		case 1:
+			if(!(engine.camera.getXMin() - pohon.getWidth()< pohon.getX())&& !(pohon.getX()>engine.camera.getXMax()))
+			{
+				pohon.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_LEFT);
+			}
+			break;
+		case 2:
+			if(!(engine.camera.getXMin() - semak.getWidth()< semak.getX())&& !(semak.getX()>engine.camera.getXMax()))
+			{
+				semak.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_LEFT);
+			}
+			break;
+		case 3:
+			if(!(engine.camera.getXMin() - pohon2.getWidth()< pohon2.getX())&& !(pohon2.getX()>engine.camera.getXMax()))
+			{
+				pohon2.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_RIGHT);
+			}
+			break;
+		case 4:
+			if(!(engine.camera.getXMin() - semak2.getWidth()< semak2.getX())&& !(semak2.getX()>engine.camera.getXMax()))
+			{
+				semak2.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_CENTER);
+			}
+			break;
+		default:
+			break;
+		}
+		
+		switch (num.nextInt(50)) {
+		case 1:
+			if(!(engine.camera.getXMin() - big_rock.getWidth()< big_rock.getX())&& !(big_rock.getX()>engine.camera.getXMax()))
+			{
+				big_rock.setPosition(engine.camera.getXMax(), -50, Anchor.BOTTOM_RIGHT);
+			}
+			break;
+		case 2:
+			if(!(engine.camera.getXMin() - small_rock.getWidth()< small_rock.getX())&& !(small_rock.getX()>engine.camera.getXMax()))
+			{
+				small_rock.setPosition(engine.camera.getXMax(), -50, Anchor.BOTTOM_LEFT);
+			}
+			break;
+		case 3:
+			if(!(engine.camera.getXMin() - fallen_tree.getWidth()< fallen_tree.getX())&& !(fallen_tree.getX()>engine.camera.getXMax()))
+			{
+				fallen_tree.setPosition(engine.camera.getXMax(), 0, Anchor.BOTTOM_CENTER);
+			}
+			break;
+		/*case 4:
+			if(!(engine.camera.getXMin() - semak2.getWidth()< semak2.getX())&& !(semak2.getX()>engine.camera.getXMax()))
+			{
+				semak2.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_CENTER);
+			}
+			break;*/
+		default:
+			break;
 		}
 		
 		if (bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
