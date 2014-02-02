@@ -1,12 +1,17 @@
 package com.agd.jb.state;
 
 import org.andengine.entity.scene.ITouchArea;
+import org.andengine.entity.text.TextOptions;
+import org.andengine.entity.util.ScreenCapture;
+import org.andengine.entity.util.ScreenGrabber;
 import org.andengine.input.touch.TouchEvent;
 import com.agd.jb.state.value.ValueAction;
 import com.agd.jb.state.value.ValueCamera;
+import com.agd.jb.state.value.ValuePlay;
 import com.agd.jb.state.value.ValuePlayer;
 import com.agd.jb.state.value.StateDefine;
 
+import android.R.integer;
 import android.view.KeyEvent;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
@@ -15,7 +20,7 @@ import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
 
-public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueAction
+public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueAction, ValuePlay
 {
 	private GameSprite bg_belakang;
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
@@ -25,7 +30,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite button_menu;
 	private GameSprite menu;
 	
-	private GameText status;
+	private GameText distance;
+	private GameText score;
 	
 	private GameAnim player_run;
 	private GameAnim player_jump;
@@ -34,14 +40,16 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameAnim player_accident;
 	
 	private boolean jump;
+	private boolean isstart;
+	
 	private int jump_player;
 	private int move_player;
 	private int time;
+	private int distance_player;
 	
 	private float speed_jump;
 	private int speed_decrease;
 	private float range_up;
-	
 	
 	public StateGamePlayJb(GameEngine engine) 
 	{
@@ -74,17 +82,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu 	= new GameSprite(BUTTON_MENU, engine);
 		menu			= new GameSprite(MENU, engine);
 		
-		status 			= new GameText("0", 1, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		distance 			= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
 	protected void init() 
 	{
+		new ScreenCapture();
+		
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
 		player_run.animate(SPEED_ANIM, true);
-		player_fall.animate(SPEED_ANIM, true);
-		player_accident.animate(SPEED_ANIM, true);
+		//player_fall.animate(SPEED_ANIM, true);
+		//player_accident.animate(SPEED_ANIM, true);
 		
 		player_run.setVisible(true);
 		player_fall.setVisible(false);
@@ -96,12 +106,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu.setVisible(false);
 		pointer.setAlpha(DISAPPEAR);
 		
+		isstart			= false;
 		jump 			= false;
 		jump_player		= NETRAL;
 		move_player 	= UP;
 		speed_decrease 	= 0;
 		speed_jump 		= 4.25f;
-		time=0;
+		time			= 0;
+		distance_player	= 0;
 	}
 
 	@Override
@@ -128,7 +140,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.hud.attachChild(menu);
 		menu.attachChild(button_menu);
 		
-		engine.hud.attachChild(status);
+		engine.hud.attachChild(distance);
 	}
 
 	@Override
@@ -155,7 +167,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		menu.detachSelf();
 		button_menu.detachSelf();
-		status.detachSelf();
+		distance.detachSelf();
 	}
 
 	@Override
@@ -179,7 +191,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		player_accident.setPosition(-37,0);
 		
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
-		status.setPosition(Anchor.TOP_RIGHT);
+		distance.setPosition(Anchor.TOP_RIGHT);
 		menu.setPosition(Anchor.CENTER);
 	}
 
@@ -203,6 +215,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		bg_belakang.setX(bg_belakang.getX() + SPEED);
 		pointer.setX(pointer.getX() + SPEED);
 		
+		distance_player= distance_player + DISTANCE;
+		distance.setText(String.format("%d", distance_player));
+		
 		engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2 - 60, engine.camera.getCenterY());
 		
 		if (bg_tengah[0].getX() + bg_tengah[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
@@ -225,13 +240,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		{
 			doubleJump(pointer, PLAYERY, speed_jump, 13);
 		}
-		status.setText(String.valueOf(move_player));
+		distance.setText(String.valueOf(move_player));
 	}
 
 	@Override
 	protected void onPaused() 
 	{
 		menu.setVisible(true);
+		button_menu.setVisible(true);
 		player_run.stopAnimation();
 	}
 
@@ -239,6 +255,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	protected void onResumed() 
 	{
 		menu.setVisible(false);
+		button_menu.setVisible(false);
 		player_run.animate(SPEED_ANIM, true);
 	}
 
@@ -264,11 +281,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{
 		switch (pSceneTouchEvent.getAction()) {
 		case TouchEvent.ACTION_DOWN:
-			
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == bg_belakang && !menu.isVisible())
+				if(pTouchArea == bg_belakang && !menu.isVisible() && isstart)
 				{
 					jump = true;
 					++jump_player;
@@ -294,10 +310,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 					default:
 						jump_player=SINGLE_JUMP;
 						break;
-					}
+					} 
+				}
+				else if(pTouchArea == bg_belakang && !menu.isVisible() && !isstart){
+					isstart = true;
 				}
 				else if(pTouchArea == menu && menu.isVisible())
 				{
+					isstart = false;
 					exitState(STATE_MENU);
 				}
 			}

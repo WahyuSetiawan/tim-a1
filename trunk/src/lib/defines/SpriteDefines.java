@@ -38,7 +38,7 @@ public interface SpriteDefines
 		new ElementSprite("gfx/gameplay/object/POHON AMBRUK.png"),
 		new ElementSprite("gfx/gameplay/object/SEMAK.png"),
 		new ElementSprite("gfx/gameplay/menu/menu.png"),
-		new ElementSprite("gfx/gameplay/menu/button_menu.png"),
+		new ElementSprite( 55, 40,"gfx/gameplay/menu/button_menu.png"),
 		new ElementSprite("gfx/loading/loading.jpg"),
 	};
 }
