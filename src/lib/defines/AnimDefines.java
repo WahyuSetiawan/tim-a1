@@ -12,7 +12,7 @@ public interface AnimDefines
 	int ANIM_PLAYER_LUBANG		= ANIM_PLAYER_DOUBLEJUMP + 1;
 	int ANIM_PLAYER_NABRAK		= ANIM_PLAYER_LUBANG + 1;
 	
-	int width  = 126;
+	int width  = 128;
 	int height = 135;
 	
 	public final static ElementAnim CONTAINER[] = 
