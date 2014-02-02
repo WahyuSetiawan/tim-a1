@@ -4,7 +4,7 @@ import org.andengine.engine.options.ScreenOrientation;
 
 public class GameEngineConfiguration 
 {
-	public static ScreenOrientation screenOrientation = ScreenOrientation.LANDSCAPE_SENSOR;
+	public static ScreenOrientation screenOrientation = ScreenOrientation.LANDSCAPE_FIXED;
 	
 	public static int masterWidth = 800;
 	
