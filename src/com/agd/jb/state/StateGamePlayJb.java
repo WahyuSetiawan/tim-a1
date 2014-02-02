@@ -98,11 +98,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
 		player_run.animate(SPEED_ANIM, true);
-		player_fall.animate(SPEED_ANIM, true);
+		//player_fall.animate(SPEED_ANIM, true);
 		//player_accident.animate(SPEED_ANIM, true);
 		
-		player_run.setVisible(false);
-		player_fall.setVisible(true);
+		player_run.setVisible(true);
+		player_fall.setVisible(false);
 		player_jump.setVisible(false);
 		player_doublejump.setVisible(false);
 		player_accident.setVisible(false);
@@ -116,7 +116,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		jump_player		= NETRAL;
 		move_player 	= UP;
 		speed_decrease 	= 0;
-		speed_jump 		= 4.25f;
+		speed_jump 		= SPEED_JUMP;
 		time			= 0;
 		distance_player	= 0;
 	}
@@ -226,7 +226,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			distance.setText(String.valueOf(distance_player));
 			speed_distance = 0;
 		}
-		
 		
 		/*if(distance.getX() + distance.getWidth() < engine.camera.getXMax()){
 			distance.setX(engine.camera.getXMax() - distance.getWidth());
