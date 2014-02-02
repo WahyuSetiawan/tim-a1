@@ -1,7 +1,5 @@
 package lib.defines;
 
-import org.andengine.opengl.texture.TextureOptions;
-
 import lib.element.ElementAnim;
 
 public interface AnimDefines 
@@ -17,7 +15,7 @@ public interface AnimDefines
 	
 	public final static ElementAnim CONTAINER[] = 
 	{
-		new ElementAnim(width, height, 8, 1, "gfx/gameplay/player/player_lari.png",TextureOptions.BILINEAR_PREMULTIPLYALPHA),
+		new ElementAnim(width, height, 8, 1, "gfx/gameplay/player/player_lari.png"),
 		new ElementAnim(width, height, 3, 1, "gfx/gameplay/player/player_jump.png"),
 		new ElementAnim(width, height, 7, 1, "gfx/gameplay/player/player_double_jump.png"),
 		new ElementAnim(width, height, 2, 1, "gfx/gameplay/player/player_lubang.png"),
