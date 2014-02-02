@@ -5,6 +5,8 @@ import org.andengine.entity.text.TextOptions;
 import org.andengine.entity.util.ScreenCapture;
 import org.andengine.entity.util.ScreenGrabber;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.util.HorizontalAlign;
+
 import com.agd.jb.state.value.ValueAction;
 import com.agd.jb.state.value.ValueCamera;
 import com.agd.jb.state.value.ValuePlay;
@@ -12,6 +14,7 @@ import com.agd.jb.state.value.ValuePlayer;
 import com.agd.jb.state.value.StateDefine;
 
 import android.R.integer;
+import android.graphics.Paint.Align;
 import android.view.KeyEvent;
 import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameAnim;
@@ -47,6 +50,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private int move_player;
 	private int time;
 	private int distance_player;
+	private int speed_distance;
 	
 	private float speed_jump;
 	private int speed_decrease;
@@ -95,10 +99,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		player_run.animate(SPEED_ANIM, true);
 		player_fall.animate(SPEED_ANIM, true);
-		player_accident.animate(SPEED_ANIM, true);
+		//player_accident.animate(SPEED_ANIM, true);
 		
-		player_run.setVisible(true);
-		player_fall.setVisible(false);
+		player_run.setVisible(false);
+		player_fall.setVisible(true);
 		player_jump.setVisible(false);
 		player_doublejump.setVisible(false);
 		player_accident.setVisible(false);
@@ -192,7 +196,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		player_accident.setPosition(-37,0);
 		
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
-		distance.setPosition(Anchor.TOP_RIGHT);
 		menu.setPosition(Anchor.CENTER);
 	}
 
@@ -216,9 +219,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		bg_belakang.setX(bg_belakang.getX() + SPEED);
 		pointer.setX(pointer.getX() + SPEED);
 		
-		distance_player= distance_player + DISTANCE;
+		speed_distance++;
+		
+		if(speed_distance == SPEED_DISTANCE){
+			distance_player++;
+			distance.setText(String.valueOf(distance_player));
+			speed_distance = 0;
+		}
+		
+		
+		/*if(distance.getX() + distance.getWidth() < engine.camera.getXMax()){
+			distance.setX(engine.camera.getXMax() - distance.getWidth());
+		}*/
 		//distance.setX(engine.camera.getXMax()-distance.getWidth());
-		distance.setText(String.format("%d", distance_player));
 		
 		engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2 - 60, engine.camera.getCenterY());
 		
@@ -295,20 +308,16 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 						break;
 					case SINGLE_JUMP:
 							player_run.setVisible(false);
-							//player_jump.animate(DURATION_SINGLE, false);
-							//player_jump.setVisible(true);
-							player_fall.setVisible(true);
+							player_jump.animate(DURATION_SINGLE, false);
+							player_jump.setVisible(true);
 							range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
 						
 						break;
 					case DOUBLE_JUMP:
-							//if(player_jump.isVisible() && move_player == UP){
-						if(player_fall.isVisible() && move_player == UP){
-								//player_jump.setVisible(false);
-								player_fall.setVisible(false);
-								player_accident.setVisible(true);
-								//player_doublejump.animate(DURATION_DOUBLE, false);
-								//player_doublejump.setVisible(true);
+							if(player_jump.isVisible() && move_player == UP){
+								player_jump.setVisible(false);
+								player_doublejump.animate(DURATION_DOUBLE, false);
+								player_doublejump.setVisible(true);
 							}
 							range_up = GameEngine.cameraHeight - DOUBLE_JUMP_RANGE;
 						break;
