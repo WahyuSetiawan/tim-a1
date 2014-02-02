@@ -13,6 +13,7 @@ import com.agd.jb.state.value.StateDefine;
 
 import android.R.integer;
 import android.view.KeyEvent;
+import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
@@ -82,7 +83,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu 	= new GameSprite(BUTTON_MENU, engine);
 		menu			= new GameSprite(MENU, engine);
 		
-		distance 			= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		distance 			= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
@@ -93,8 +94,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
 		player_run.animate(SPEED_ANIM, true);
-		//player_fall.animate(SPEED_ANIM, true);
-		//player_accident.animate(SPEED_ANIM, true);
+		player_fall.animate(SPEED_ANIM, true);
+		player_accident.animate(SPEED_ANIM, true);
 		
 		player_run.setVisible(true);
 		player_fall.setVisible(false);
@@ -216,6 +217,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		pointer.setX(pointer.getX() + SPEED);
 		
 		distance_player= distance_player + DISTANCE;
+		//distance.setX(engine.camera.getXMax()-distance.getWidth());
 		distance.setText(String.format("%d", distance_player));
 		
 		engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2 - 60, engine.camera.getCenterY());
@@ -240,7 +242,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		{
 			doubleJump(pointer, PLAYERY, speed_jump, 13);
 		}
-		distance.setText(String.valueOf(move_player));
 	}
 
 	@Override
@@ -294,16 +295,20 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 						break;
 					case SINGLE_JUMP:
 							player_run.setVisible(false);
-							player_jump.animate(DURATION_SINGLE, false);
-							player_jump.setVisible(true);
+							//player_jump.animate(DURATION_SINGLE, false);
+							//player_jump.setVisible(true);
+							player_fall.setVisible(true);
 							range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
 						
 						break;
 					case DOUBLE_JUMP:
-							if(player_jump.isVisible() && move_player == UP){
-								player_jump.setVisible(false);
-								player_doublejump.animate(DURATION_DOUBLE, false);
-								player_doublejump.setVisible(true);
+							//if(player_jump.isVisible() && move_player == UP){
+						if(player_fall.isVisible() && move_player == UP){
+								//player_jump.setVisible(false);
+								player_fall.setVisible(false);
+								player_accident.setVisible(true);
+								//player_doublejump.animate(DURATION_DOUBLE, false);
+								//player_doublejump.setVisible(true);
 							}
 							range_up = GameEngine.cameraHeight - DOUBLE_JUMP_RANGE;
 						break;
