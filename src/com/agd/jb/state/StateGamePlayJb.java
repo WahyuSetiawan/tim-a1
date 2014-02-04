@@ -44,6 +44,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	
 	private GameText distance;
 	private GameText score;
+	
 	private Random num = new Random();
 	
 	private GameAnim player_run;
@@ -414,7 +415,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 							player_jump.animate(DURATION_SINGLE, false);
 							player_jump.setVisible(true);
 							range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
-						
 						break;
 					case DOUBLE_JUMP:
 							if(player_jump.isVisible() && move_player == UP){
