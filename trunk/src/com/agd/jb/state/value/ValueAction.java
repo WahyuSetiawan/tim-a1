@@ -14,7 +14,7 @@ public interface ValueAction {
 	static final long DURATION_SINGLE = 500;
 	static final long DURATION_DOUBLE = 150;
 	
-	static final float SINGLE_JUMP_RANGE	= 300;
+	static final float SINGLE_JUMP_RANGE	= 261;
 	static final float DOUBLE_JUMP_RANGE 	= 400;
 	
 	static final float SPEED_JUMP	= 4.25f;
