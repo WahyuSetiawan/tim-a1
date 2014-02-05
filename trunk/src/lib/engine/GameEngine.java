@@ -1,20 +1,30 @@
 package lib.engine;
 
+import java.text.DecimalFormat;
+
 import lib.defines.FontDefines;
 import lib.defines.GameEngineConfiguration;
+import lib.element.ElementTable;
+import lib.elementgame.GameDatabase;
 import lib.elementgame.GameFont;
+import lib.elementgame.GameText;
 import lib.elementgame.Mfx;
 import lib.elementgame.Sfx;
 
+import org.andengine.engine.Engine;
+import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.util.FPSCounter;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -23,7 +33,6 @@ import org.andengine.util.color.Color;
 
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.view.KeyEvent;
 
 public abstract class GameEngine extends SimpleBaseGameActivity implements IUpdateHandler, IOnSceneTouchListener
 {
@@ -52,6 +61,10 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 	
 	public final Handler handler = new Handler();
 	
+	private FPSCounter fps	= new FPSCounter();
+	
+	private GameDatabase dbase;
+	
 	public EngineOptions onCreateEngineOptions() 
 	{
 		processScreenOrientation();
@@ -78,6 +91,15 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		return engineOptions;
 	}
 
+	@Override
+	public Engine onCreateEngine(EngineOptions pEngineOptions) 
+	{
+		if(GameEngineConfiguration.useFpsLimiter)
+			return new LimitedFPSEngine(pEngineOptions, GameEngineConfiguration.fpsLimit);
+		
+		return super.onCreateEngine(pEngineOptions);
+	}
+	
     @Override
     protected synchronized void onCreateGame() 
     {
@@ -97,6 +119,12 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		Mfx.loadAllMfx(this);
 		
 		createSystemFont();
+		
+		ElementTable[] tables = onCreateTables();
+		if(tables != null)
+		{
+			dbase = new GameDatabase(this, tables);
+		}
 	}
 	
 	@Override
@@ -112,6 +140,23 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		if(GameEngineConfiguration.useTouchScene)
 		{
 			scene.setOnSceneTouchListener(this);
+		}
+		
+		if(GameEngineConfiguration.showFpsCounter)
+		{
+			final GameText txtFps = new GameText("", 20, font, this);
+			
+			mEngine.registerUpdateHandler(fps);
+			
+			hud.attachChild(txtFps);
+			
+			hud.registerUpdateHandler(new TimerHandler(0.5f, true, new ITimerCallback() 
+			{	
+				public void onTimePassed(TimerHandler pTimerHandler) 
+				{
+					txtFps.setText(new DecimalFormat("##.##").format(fps.getFPS()) + " fps");
+				}
+			}));
 		}
 		
 		return scene;
@@ -163,9 +208,7 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		states[currState].update();
 	}
 	
-	public void reset() 
-	{	
-	}
+	public void reset() {}
 	
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) 
 	{
@@ -233,23 +276,26 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		try 
 		{
 			return gameFont[index];
-		} 
-		catch (ArrayIndexOutOfBoundsException e) 
+		} catch (ArrayIndexOutOfBoundsException e) 
 		{
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) 
+	public FPSCounter getFps() 
 	{
-		states[currState].onKeyUp(keyCode, event);
-		
-		return false;
+		return fps;
+	}
+	
+	public GameDatabase getDbase() 
+	{
+		return dbase;
 	}
 	
 	abstract protected void gameInit();
 	
 	abstract protected GameState[] onCreateState();
+	
+	abstract protected ElementTable[] onCreateTables();
 }
