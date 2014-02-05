@@ -16,13 +16,19 @@ public class GameEngineConfiguration
 	
 	public static boolean useMusic = false;
 	
-	public static boolean useUsualCamera = !false;
+	public static boolean useUsualCamera 	= !false;
 	
-	public static boolean useGameUpdate = !false;
+	public static boolean useGameUpdate 	= !false;
 	
-	public static boolean useTouchScene = false;
+	public static boolean useTouchScene 	= false;
 	
-	public static boolean useVibration = false;
+	public static boolean useVibration 		= false;
+	
+	public static boolean showFpsCounter	= !false;
+	
+	public static boolean useFpsLimiter		= !false;
+	
+	public static int	  fpsLimit			= 60;
 	
 	public static String debugTagName = "DEBUG";
 }

@@ -3,6 +3,7 @@ package com.agd.jb;
 import com.agd.jb.state.StateGameMenuJb;
 import com.agd.jb.state.StateGamePlayJb;
 
+import lib.element.ElementTable;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
 
@@ -23,5 +24,11 @@ public class MainActivity extends GameEngine
 					new StateGameMenuJb(this),
 					new StateGamePlayJb(this),
 				};
+	}
+
+	@Override
+	protected ElementTable[] onCreateTables() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
