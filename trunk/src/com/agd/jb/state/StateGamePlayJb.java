@@ -163,14 +163,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.scene.attachChild(pohon2);
 		engine.scene.attachChild(semak2);
 		
-		engine.scene.attachChild(big_rock);
-		engine.scene.attachChild(small_rock);
-		engine.scene.attachChild(fallen_tree);
-		
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
 			engine.scene.attachChild(bg_floor_depan[loop]);
 		}
+		
+		engine.scene.attachChild(big_rock);
+		engine.scene.attachChild(small_rock);
+		engine.scene.attachChild(fallen_tree);
 		
 		engine.scene.attachChild(pointer);
 		pointer.attachChild(player_run);
@@ -199,14 +199,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		pohon2.detachSelf();
 		semak2.detachSelf();
 		
-		big_rock.detachSelf();
-		small_rock.detachSelf();
-		fallen_tree.detachSelf();
-		
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
 			bg_floor_depan[loop].detachSelf();
 		}
+		
+		big_rock.detachSelf();
+		small_rock.detachSelf();
+		fallen_tree.detachSelf();
 		
 		pointer.detachSelf();
 		
@@ -293,25 +293,25 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		case 1:
 			if(!(engine.camera.getXMin() - pohon.getWidth()< pohon.getX())&& !(pohon.getX()>engine.camera.getXMax()))
 			{
-				pohon.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_LEFT);
+				pohon.setPosition(engine.camera.getXMax(), -25, Anchor.CENTER_LEFT);
 			}
 			break;
 		case 2:
 			if(!(engine.camera.getXMin() - semak.getWidth()< semak.getX())&& !(semak.getX()>engine.camera.getXMax()))
 			{
-				semak.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_LEFT);
+				semak.setPosition(engine.camera.getXMax(), -25, Anchor.BOTTOM_LEFT);
 			}
 			break;
 		case 3:
 			if(!(engine.camera.getXMin() - pohon2.getWidth()< pohon2.getX())&& !(pohon2.getX()>engine.camera.getXMax()))
 			{
-				pohon2.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_RIGHT);
+				pohon2.setPosition(engine.camera.getXMax(), -25, Anchor.CENTER_RIGHT);
 			}
 			break;
 		case 4:
 			if(!(engine.camera.getXMin() - semak2.getWidth()< semak2.getX())&& !(semak2.getX()>engine.camera.getXMax()))
 			{
-				semak2.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_CENTER);
+				semak2.setPosition(engine.camera.getXMax(), -25, Anchor.BOTTOM_CENTER);
 			}
 			break;
 		default:
@@ -334,7 +334,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		case 3:
 			if(!(engine.camera.getXMin() - fallen_tree.getWidth()< fallen_tree.getX())&& !(fallen_tree.getX()>engine.camera.getXMax()))
 			{
-				fallen_tree.setPosition(engine.camera.getXMax(), 0, Anchor.BOTTOM_CENTER);
+				fallen_tree.setPosition(engine.camera.getXMax(), -50, Anchor.BOTTOM_CENTER);
 			}
 			break;
 		/*case 4:
