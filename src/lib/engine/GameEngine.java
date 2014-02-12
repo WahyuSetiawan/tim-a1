@@ -33,6 +33,7 @@ import org.andengine.util.color.Color;
 
 import android.graphics.Typeface;
 import android.os.Handler;
+import android.view.KeyEvent;
 
 public abstract class GameEngine extends SimpleBaseGameActivity implements IUpdateHandler, IOnSceneTouchListener
 {
@@ -283,6 +284,15 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		return null;
 	}
 
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) 
+	{
+		states[currState].onKeyUp(keyCode, event);
+		
+		return false;
+	}
+	
 	public FPSCounter getFps() 
 	{
 		return fps;

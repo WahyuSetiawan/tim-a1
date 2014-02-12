@@ -13,6 +13,7 @@ import com.agd.jb.state.value.ValuePlayer;
 import com.agd.jb.state.value.StateDefine;
 import com.agd.jb.state.value.ValueFlagObs;
 
+import android.R.id;
 import android.view.KeyEvent;
 
 import lib.defines.GameEngineConfiguration;
@@ -28,7 +29,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite bg_belakang;
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
-	private GameSprite[][] obstacle 		= new GameSprite[2][3];
+	private GameSprite[][] obstacle 	= new GameSprite[2][3];
 	private GameSprite pointer;
 	private GameSprite pohon;
 	private GameSprite pohon2;
@@ -51,7 +52,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	
 	private boolean jump;
 	private boolean isstart;
-	private boolean nextobs;
+	private int selectobs;
 	
 	private int jump_player;
 	private int move_player;
@@ -92,17 +93,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		semak			= new GameSprite(BG_SEMAK, engine);
 		semak2			= new GameSprite(BG_SEMAK, engine);
 		
-		//big_rock		= new GameSprite(BIG_ROCK, engine);
-		//small_rock		= new GameSprite(SMALL_ROCK, engine);
-		//fallen_tree		= new GameSprite(TREE, engine);
-		
-		obstacle[0][0]		= new GameSprite(BIG_ROCK, engine);
-		obstacle[0][1]		= new GameSprite(SMALL_ROCK, engine);
-		obstacle[0][2]		= new GameSprite(TREE, engine);
-		
-		obstacle[1][0]		= new GameSprite(BIG_ROCK, engine);
-		obstacle[1][1]		= new GameSprite(SMALL_ROCK, engine);
-		obstacle[1][2]		= new GameSprite(TREE, engine);
+		for(int loop = 0; loop < obstacle.length;loop++ ){
+			obstacle[loop][0]		= new GameSprite(BIG_ROCK, engine);
+			obstacle[loop][1]		= new GameSprite(SMALL_ROCK, engine);
+			obstacle[loop][2]		= new GameSprite(TREE, engine);
+		}
 		
 		player_run 			= new GameAnim(ANIM_PLAYER_LARI, engine);
 		player_accident		= new GameAnim(ANIM_PLAYER_NABRAK, engine);
@@ -136,10 +131,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		menu.setVisible(false);
 		button_menu.setVisible(false);
-		//pointer.setAlpha(DISAPPEAR);
+		pointer.setAlpha(DISAPPEAR);
 		
 		flagout			= STARTOBS;
-		nextobs 		= true;
+		selectobs		= 0;
 		isstart			= false;
 		jump 			= false;
 		jump_player		= NETRAL;
@@ -169,13 +164,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			engine.scene.attachChild(bg_floor_depan[loop]);
 		}
 		
-		engine.scene.attachChild(obstacle[0][0]);
-		engine.scene.attachChild(obstacle[0][1]);
-		engine.scene.attachChild(obstacle[0][2]);
-		
-		engine.scene.attachChild(obstacle[1][0]);
-		engine.scene.attachChild(obstacle[1][1]);
-		engine.scene.attachChild(obstacle[1][2]);
+		for(int loop = 0; loop < obstacle.length;loop++ ){
+			engine.scene.attachChild(obstacle[loop][0]);
+			engine.scene.attachChild(obstacle[loop][1]);
+			engine.scene.attachChild(obstacle[loop][2]);
+		}
 		
 		engine.scene.attachChild(pointer);
 		pointer.attachChild(player_run);
@@ -205,13 +198,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		pohon2.detachSelf();
 		semak2.detachSelf();
 		
-		obstacle[0][0].detachSelf();
-		obstacle[0][1].detachSelf();
-		obstacle[0][2].detachSelf();
-		
-		obstacle[1][0].detachSelf();
-		obstacle[1][1].detachSelf();
-		obstacle[1][2].detachSelf();
+		for(int loop = 0; loop < obstacle.length;loop++ ){
+			obstacle[loop][0].detachSelf();
+			obstacle[loop][1].detachSelf();
+			obstacle[loop][2].detachSelf();
+		}
 		
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
@@ -243,8 +234,15 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		bg_floor_depan[0].setX(0);
 		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
 		
-		pointer.setX(PLAYERX);
-		pointer.setY(PLAYERY);
+		float flagbottompointer = pointer.getY() + (pointer.getHeight() /2);
+		
+		for(int loop = 0; loop < obstacle.length;loop++ ){
+			obstacle[loop][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[loop][0].getHeight()/2));
+			obstacle[loop][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[loop][1].getHeight()/2));
+			obstacle[loop][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[loop][2].getHeight()/2));
+		}
+		
+		pointer.setPosition(PLAYERX, PLAYERY);
 		
 		player_run.setPosition(-37, -18);
 		player_fall.setPosition(-37, -18);
@@ -262,15 +260,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		status.setPosition(Anchor.TOP_RIGHT);
 		
-		float flagbottompointer = pointer.getY() + (pointer.getHeight() /2);
 		
-		obstacle[0][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[0][0].getHeight()/2));
-		obstacle[0][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[0][1].getHeight()/2));
-		obstacle[0][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[0][2].getHeight()/2));
-		
-		obstacle[1][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[1][0].getHeight()/2));
-		obstacle[1][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[1][1].getHeight()/2));
-		obstacle[1][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[1][2].getHeight()/2));
 	}
 
 	@Override
@@ -320,7 +310,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}
 		
 		
-		switch (num.nextInt(50)) {
+		switch (num.nextInt(75)) {
 		case 1:
 			if(!(engine.camera.getXMin() - pohon.getWidth()< pohon.getX())&& !(pohon.getX()>engine.camera.getXMax()))
 			{
@@ -349,7 +339,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		if(engine.camera.getXMax() > flagout)
 		{
-			flagout = flagout + setFlag(obstacle, num.nextInt(FLAGOBS[0].length), FLAGOBS);
+			flagout = flagout + setFlag(obstacle, num.nextInt(FLAGOBS[0].length - 1), FLAGOBS);
 		}
 		
 		if(jump)
@@ -379,7 +369,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{
 		if(keyCode == KeyEvent.KEYCODE_BACK) 
 		{
-			if(menu.isVisible())
+			if(isPaused())
 			{
 				resume();
 			}
@@ -387,7 +377,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			{ 	
 				pause();
 			}
-			
 		}
 	}
 	
@@ -396,10 +385,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{
 		switch (pSceneTouchEvent.getAction()) {
 		case TouchEvent.ACTION_DOWN:
+			{
+				
+			}
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == bg_belakang && !menu.isVisible() && isstart)
+				if(pTouchArea == bg_belakang && !isPaused() && isstart)
 				{
 					jump = true;
 					++jump_player;
@@ -426,10 +418,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 						break;
 					} 
 				}
-				else if(pTouchArea == bg_belakang && !menu.isVisible() && !isstart){
+				else if(pTouchArea == bg_belakang && !isPaused() && !isstart){
 					isstart = true;
 				}
-				else if(pTouchArea == menu && menu.isVisible())
+				else if(pTouchArea == menu && isPaused())
 				{
 					isstart = false;
 					exitState(STATE_MENU);
@@ -442,37 +434,36 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	}
 	
 	private float setFlag(GameSprite[][] sprites, int flag, int[][] flagobs)
-	{
+  	{
 		int i = 0;float j = 0, r = 0;
 		
+		if(obsfirst == flagobs[0].length){
+			flag--;
+		}
+		else 
 		if(obsfirst == flag){
+				
 			flag++;
 		}
 		
 		obsfirst = flag;
 		
-		status.setText(String.valueOf(flag));
+		status.setText(String.valueOf(obstacle.length));
 		
 		while(i < flagobs[flag].length)
 		{
-			r = (275 * (i + 1)) + num.nextInt(75);
+			r = (300 * (i + 1)) + num.nextInt(75);
 			
 			if(!(flagobs[flag][i] == DISABLE))
 			{
-				if(nextobs){
-					sprites[0][flagobs[flag][i]].setX(flagout + r);
-					nextobs = false;
-				}
-				else 
-				if(!nextobs)
-				{
-					sprites[1][flagobs[flag][i]].setX(flagout + r);
-					nextobs = true;
-				}
+				sprites[selectobs][flagobs[flag][i]].setX(flagout + r);
 			}
 			j =+ r;
 			i++;
 		}
+		++selectobs;
+		
+		if(selectobs >= obstacle.length)selectobs=0;
 		return j;
 	}
 	

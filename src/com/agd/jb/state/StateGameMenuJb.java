@@ -121,7 +121,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	@Override
 	public void onKeyUp(int keyCode, KeyEvent event) 
 	{
-		//if(keyCode == KeyEvent.KEYCODE_BACK) engine.finish();
+		if(keyCode == KeyEvent.KEYCODE_BACK) engine.finish();
 	}
 	
 	@Override
