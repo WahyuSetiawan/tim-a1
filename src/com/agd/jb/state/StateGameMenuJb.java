@@ -19,9 +19,10 @@ import lib.engine.GameState;
 public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlayer, StateDefine, ValueMenu
 {		
 	private GameSprite bg_menu;
-	private GameSprite bg_fill;
+	//private GameSprite bg_fill;
 	private GameSprite bg_back;
 	private GameSprite bg_front;
+	private GameSprite bg_floor_depan;
 	
 	private GameText text_play;
 	
@@ -33,19 +34,20 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	@Override
 	public void initComponent() 
 	{
-		bg_fill 	= new GameSprite(BG_MENU_FILL, engine);
-		bg_menu 	= new GameSprite(BG_MENU, engine);
-		bg_front 	= new GameSprite(BG_TENGAH, engine);
-		bg_back 	= new GameSprite(BG_BELAKANG, engine);
+		//bg_fill 		= new GameSprite(BG_MENU_FILL, engine);
+		bg_menu 		= new GameSprite(BG_MENU, engine);
+		bg_front 		= new GameSprite(BG_TENGAH, engine);
+		bg_back 		= new GameSprite(BG_BELAKANG, engine);
+		bg_floor_depan 	= new GameSprite(BG_FLOOR_DEPAN, engine);
 		
-		text_play 	= new GameText(PLAY_NOW, PLAY_NOW.length(), engine.getFont(FONT_ANIMEACE2_ITAL),engine);
+		text_play 		= new GameText(PLAY_NOW, PLAY_NOW.length(), engine.getFont(FONT_ANIMEACE2_ITAL),engine);
 	}
 
 	@Override
 	protected void init() 
 	{
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
-		bg_fill.setAlpha(0f);
+		//bg_fill.setAlpha(0f);
 		bg_menu.setAlpha(0f);
 	}
 
@@ -54,31 +56,34 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	{		
 		engine.scene.attachChild(bg_back);
 		engine.scene.attachChild(bg_front);
-		engine.scene.attachChild(bg_fill);
+		//engine.scene.attachChild(bg_fill);
+		engine.scene.attachChild(bg_floor_depan);
 		
-		bg_fill.attachChild(bg_menu);
-		bg_fill.attachChild(text_play);
+		bg_front.attachChild(bg_menu);
+		bg_front.attachChild(text_play);
 	}
 
 	@Override
 	protected void detach()
 	{
-		bg_fill.detachSelf();
+		//bg_fill.detachSelf();
 		bg_menu.detachSelf();
 		bg_back.detachSelf();
 		bg_front.detachSelf();
 		text_play.detachSelf();
+		bg_floor_depan.detachSelf();
 	}
 
 	@Override
 	protected void setPosition() 
 	{
-		bg_fill.setPosition(0,0);
+		//bg_fill.setPosition(0,0);
 		bg_menu.setPosition(0,0);
 		bg_back.setPosition(0,0);
 		bg_front.setPosition(0,0);
+		bg_floor_depan.setPosition(Anchor.BOTTOM_CENTER);
 		
-		bg_fill.setPosition(0,0);
+		//bg_fill.setPosition(0,0);
 		bg_menu.setPosition(0,0);
 		text_play.setPosition(Anchor.CENTER);
 	}
@@ -116,7 +121,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	@Override
 	public void onKeyUp(int keyCode, KeyEvent event) 
 	{
-		if(keyCode == KeyEvent.KEYCODE_BACK) engine.finish();
+		//if(keyCode == KeyEvent.KEYCODE_BACK) engine.finish();
 	}
 	
 	@Override
