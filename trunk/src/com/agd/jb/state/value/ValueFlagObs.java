@@ -9,11 +9,13 @@ public interface ValueFlagObs {
 	
 	public static float STARTOBS 	= 900f;
 	
+	public static int RANGEOBSTACLE = 350;
+	
 	public static int[][] FLAGOBS = {
 		{FALLPOHON, DISABLE, BIGROCK},
-		//{DISABLE, DISABLE, DISABLE},
+		{DISABLE, DISABLE, DISABLE},
 		{LITTLEROCK, BIGROCK,FALLPOHON},
 		{BIGROCK, DISABLE, FALLPOHON},
-		//{FALLPOHON,LITTLEROCK,DISABLE},
+		{FALLPOHON,LITTLEROCK,DISABLE},
 		};
 }

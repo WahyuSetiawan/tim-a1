@@ -1,11 +1,8 @@
 package lib.elementgame;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import lib.element.ElementTable;
-import lib.engine.GameEngine;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -23,30 +20,43 @@ public class GameDatabase extends SQLiteOpenHelper
 	private Cursor cursor;
 
 // > End Fields
-	
-	public GameDatabase(GameEngine engine, ElementTable[] tables) 
+
+// < Construct
+	public GameDatabase(Context context, ElementTable[] tables) 
 	{
-		super(engine, "AGD_DB", null, 2);
+		super(context, "AGD_DB", null, 2);
 		this.tables = tables;
 		
 		init();
 	}
+	
+	public GameDatabase(Context context) 
+	{
+		super(context, "AGD_DB", null, 2);
+	}
+
+// > End Construct
+
+// < Other Methods
 	
 	private void init() 
 	{
 		for (ElementTable table : tables) 
 		{
 			if(!isTableExist(table._tableName))
+			{
 				createTable(table);
+				insertData(table);
+			}
 		}
 	}
 	
-	protected void openConnection() throws SQLException
+	private void openConnection() throws SQLException
 	{
 		myDb = this.getWritableDatabase();
 	}
 	
-	protected void closeConnection() 
+	private void closeConnection() 
 	{
 		myDb.close();
 	}
@@ -70,95 +80,29 @@ public class GameDatabase extends SQLiteOpenHelper
 		return true;
 	}
 
-//
-//CIUS D2	
-
-// < Create
-	
-	public boolean createTable(ElementTable table) 
-	{
-		String name = table._tableName;
-		String[] colName = table._colName;
-		String[] initValues = table._initColValue;
-		
-		return createTable(name, colName, initValues);
-	}
-	
-	public boolean createTable(String tabName, String[] colName, String[] initValues)
-	{
-		String query = "CREATE TABLE IF NOT EXISTS " + tabName + " (";
-		
-		for (int i = 0; i < colName.length; i++) 
-		{
-			query += colName[i] + " VARCHAR(255)";
-			
-			if(!initValues[i].isEmpty() || initValues[i] != null || !initValues.equals(""))
-				query += " DEFAULT '" + initValues[i] + "'";
-			
-			if(i < colName.length - 1)
-				query += ",";
-		}
-		
-		query += ")";
-		
-		return execute(query);
-	}
-	
- 
-// > End Create
-
-// < Insert
-	public boolean insertData(ElementTable table) 
-	{
-		String[] values = table._initColValue;
-		
-		return insertData(table, values);
-	}
-	
-	public boolean insertData(ElementTable table, String[] values) 
-	{
-		String name = table._tableName;
-		String[] colNames = table._colName;
-		
-		return insertData(name, colNames, values);
-	}
-	
-	public boolean insertData(int tabIndex, String[] values) 
-	{
-		return insertData(tables[tabIndex]._tableName, tables[tabIndex]._colName, values);
-	}
-	
-	public boolean insertData(String tabName, String[] colNames, String[] values) 
-	{
-		String query = "INSERT INTO " + tabName + " (";
-		
-		for (int i = 0; i < colNames.length; i++) 
-		{
-			query += colNames[i];
-			
-			if(i < colNames.length - 1)
-				query += ",";
-		}
-		
-		query += ") VALUES (";
-		
-
-		for (int i = 0; i < values.length; i++) 
-		{
-			query += "'" + values[i] + "'";
-			
-			if(i < values.length - 1)
-				query += ",";
-		}
-		
-		query += ")";
-		
-		return insertData(query);
-	}
-	
-	public boolean insertData(String query) 
+	public boolean execSQL(String query)
 	{
 		openConnection();
+		System.out.println(query);
+		try 
+		{
+			myDb.execSQL(query);
+			closeConnection();
+			return true;
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		
+		closeConnection();
+		return false;
+	}
+	
+	public boolean execInsert(String query) 
+	{
+		openConnection();
+		System.out.println(query);
 		try 
 		{
 			sqlInsert = myDb.compileStatement(query);
@@ -174,91 +118,324 @@ public class GameDatabase extends SQLiteOpenHelper
 		closeConnection();
 		return true;
 	}
+	
+	public boolean reset() 
+	{
+		boolean status = false;
+		
+		for (ElementTable table : tables) 
+		{
+			status = reset(table);
+		}
+		
+		return status;
+	}
+	
+	public boolean reset(ElementTable table) 
+	{
+		boolean status1 = false, status2 = false, status3 = false;
 
+		status1 = dropTable(table);
+		status2 = createTable(table);
+		status3 = insertData(table);
+		
+		return status1 && status2 && status3;
+	}
+	
+	public void print(int tableIndex) 
+	{
+		print(tables[tableIndex]);
+	}
+	
+	public void print(ElementTable table)
+	{
+		print(table._tableName);
+	}
+	
+	public void print(String tableName)
+	{
+		String[][] data = getData(tableName);
+		
+		System.out.println("Data " + tableName);
+		System.out.println("=================================");
+		for(int i = 0; i < data.length; i++)
+		{
+			for (int j = 0; j < data[i].length; j++) 
+			{
+				System.out.println("[" + i + "][" + j + "] : " + data[i][j]);
+			}
+		}
+	}
+
+// > End Other Methods
+	
+//
+//CIUS D2
+
+// < Create
+	
+	public boolean createTable(int tableIndex) 
+	{
+		return createTable(tables[tableIndex]);
+	}
+	
+	public boolean createTable(ElementTable table) 
+	{
+		String name = table._tableName;
+		String[] colName = table._colNames;
+		
+		return createTable(name, colName);
+	}
+	
+	public boolean createTable(String tabName, String[] colName)
+	{
+		String query = "CREATE TABLE IF NOT EXISTS " + tabName + " (";
+		
+		for (int i = 0; i < colName.length; i++) 
+		{
+			query += colName[i] + " VARCHAR(255)";
+			
+			if(i < colName.length - 1)
+				query += ",";
+		}
+		
+		query += ")";
+		
+		return execSQL(query);
+	}
+	
+ 
+// > End Create
+
+// < Insert
+	public boolean insertData(ElementTable table) 
+	{
+		String[] values = table._initValues;
+		
+		return insertData(table, values);
+	}
+	
+	public boolean insertData(ElementTable table, String[] values) 
+	{
+		String name = table._tableName;
+		String[] colNames = table._colNames;
+		
+		return insertData(name, colNames, values);
+	}
+	
+	public boolean insertData(int tabIndex, String[] values) 
+	{
+		return insertData(tables[tabIndex]._tableName, tables[tabIndex]._colNames, values);
+	}
+	
+	public boolean insertData(String tabName, String[] colNames, String[] values) 
+	{
+		for (int i = 0; i < values.length; i++) 
+		{
+			values[i] = values[i].replace("'", "\\'");
+		}
+		
+		String query = "INSERT INTO " + tabName + " (";
+		
+		for (int i = 0; i < colNames.length; i++) 
+		{
+			query += colNames[i];
+			
+			if(i < colNames.length - 1)
+				query += ",";
+		}
+		
+		query += ") VALUES (";
+		
+
+		for (int i = 0; i < values.length; i++) 
+		{			
+			query += "'" + values[i] + "'";
+			
+			if(i < values.length - 1)
+				query += ",";
+		}
+		
+		query += ")";
+		
+		return execInsert(query);
+	}
+	
 // > End Insert
 	
 // < Update
-	public boolean updateData(int tableIndex, int colIndexToSet, String value) 
+	
+	public boolean updateData(int tableIndex, int[] colIndexToSet, String[] values, String whereClause) 
 	{
-		return updateData(tableIndex, colIndexToSet, value, "", "");
+		return updateData(tables[tableIndex], colIndexToSet, values, whereClause);
 	}
 	
-	public boolean updateData(int tableIndex, int colIndexToSet, String value, int colIndexToControl, String equals) 
+	public boolean updateData(ElementTable table, int[] colIndexToSet, String[] values, String whereClause) 
 	{
-		return updateData(tableIndex, colIndexToSet, value, tables[tableIndex]._colName[colIndexToControl], equals);
-	}
-	
-	public boolean updateData(int tableIndex, int colIndexToSet, String value, String where, String equals) 
-	{
-		return updateData(tableIndex, colIndexToSet, value, "WHERE " + where + " = '" + equals + "'");
-	}
-	
-	public boolean updateData(int tableIndex, int colIndexToSet, String value, String condition) 
-	{
-		String name = tables[tableIndex]._tableName;
-		String col  = tables[tableIndex]._colName[colIndexToSet];
+		String[] cols = new String[colIndexToSet.length];
 		
-		String query = "UPDATE " + name + " SET " + col + " = '" + value + "' ";
-		
-		if(!condition.isEmpty())
+		for (int i = 0; i < cols.length; i++) 
 		{
-			query += condition;
+			cols[i] = table._colNames[colIndexToSet[i]];
 		}
 		
-		return updateData(query);
+		return updateData(table._tableName, cols, values, whereClause);
 	}
 	
-	public boolean updateData(String query) 
+	public boolean updateData(String tableName, String[] colNameToSet, String[] values, String whereClause) 
 	{
-		return insertData(query);
+		
+		for (int i = 0; i < values.length; i++) 
+		{
+			values[i] = values[i].replace("'", "\\'");
+		}
+		
+		String query = "UPDATE " + tableName + " SET ";
+		
+		for (int i = 0; i < colNameToSet.length; i++) 
+		{
+			query += colNameToSet[i] + " = '" + values[i] + "'";
+			
+			if(i < colNameToSet.length - 1)
+				query += ", ";
+		}
+		
+		query += " " + whereClause;
+		
+		return execInsert(query);
 	}
-
+	
 // > End Update
 
 // < Select
-	public String[][] getAllData(int tableIndex) 
+	
+	public String[] getDataColumn(int tableIndex, int columnIndex) 
 	{
-		ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
+		return getDataColumn(tables[tableIndex], columnIndex);
+	}
+	
+	public String[] getDataColumn(ElementTable table, int columnIndex) 
+	{
+		return getDataColumn(table._tableName, columnIndex);
+	}
+	
+	public String[] getDataColumn(String tableName, int columnIndex) 
+	{
+		String data[][] = getData(tableName);
 		
-		for (String col : tables[tableIndex]._colName) 
+		String[] col 	= new String[data.length];
+		
+		for (int i = 0; i < data.length; i++) 
 		{
-			list.add(new ArrayList<String>(Arrays.asList(getData(tableIndex, col))));
+			for (int j = 0; j < data[i].length; j++) 
+			{
+				col[i] = data[i][columnIndex];
+			}
 		}
 		
-		return (String[][]) list.toArray();
+		return col;
 	}
 	
-	public String[] getData(int tableIndex, int colIndex)
+	public String[] getDataRow(int tableIndex, int rowIndex) 
 	{
-		return getData(tableIndex, tables[tableIndex]._colName[colIndex]);
+		return getDataRow(tables[tableIndex], rowIndex);
 	}
 	
-	public String[] getData(int tableIndex, String colName) 
+	public String[] getDataRow(ElementTable table, int rowIndex) 
 	{
-		String query = "SELECT " + colName + "FROM " + tables[tableIndex]._tableName;
+		return getDataRow(table._tableName, rowIndex);
+	}
+	
+	public String[] getDataRow(String tableName, int rowIndex) 
+	{
+		String[][] data = getData(tableName);
 		
-		return getData(query);
+		String[] row 	= new String[data[rowIndex].length];
+		
+		for (int i = 0; i < data.length; i++) 
+		{
+			for (int j = 0; j < data[i].length; j++) 
+			{
+				row[j] = data[rowIndex][j];
+			}
+		}
+		
+		return row;
 	}
 	
-	public String[] getData(String query) 
+	public String getData(int tableIndex, int row, int col)
 	{
+		return getData(tables[tableIndex])[row][col];
+	}
+	
+	public String getData(ElementTable table, int row, int col)
+	{
+		return getData(table._tableName)[row][col];
+	}
+	
+	public String getData(String tableName, int row, int col)
+	{
+		return getData(tableName)[row][col];
+	}
+	
+	public String[][] getData(int tableIndex)
+	{
+		return getData(tables[tableIndex]);
+	}
+	
+	public String[][] getData(ElementTable table)
+	{
+		String name = table._tableName;
+		
+		String[] col = table._colNames;
+		
+		String query = "SELECT ";
+		
+		for (int i = 0; i < col.length; i++) 
+		{
+			query += col[i];
+			
+			if(i<col.length - 1)
+				query += ", ";
+		}
+		
+		query += " FROM " + name;
+		
 		return getData(query, null);
 	}
 	
-	public String[] getData(String query, String[] selectionArgs) 
+	public String[][] getData(String tableName)
+	{
+		String query = "SELECT * FROM " + tableName;
+		
+		return getData(query, null);
+	}
+	
+	public String[][] getData(String query, String[] selectionArgs) 
 	{
 		openConnection();
 		
-		ArrayList<String> list = new ArrayList<String>();
+		System.out.println(query);
+		
+		String[][] data = null;
 		
 		try 
 		{
 			cursor = myDb.rawQuery(query, selectionArgs);
 			
-			while (cursor.moveToNext())
+			int col = cursor.getColumnCount();
+			int row = cursor.getCount();
+			
+			data = new String[row][col];
+			
+			for (int i = 0; cursor.moveToNext(); i++) 
 			{
-				list.add(cursor.getString(cursor.getPosition()));
+				for (int j = 0; j < col; j++) 
+				{
+					data[i][j] = cursor.getString(j);
+				}
 			}
+
 		} 
 		catch (Exception e) 
 		{
@@ -267,9 +444,31 @@ public class GameDatabase extends SQLiteOpenHelper
 		
 		cursor.close();
 		closeConnection();
-		return (String[]) list.toArray();
+		
+		return data;
 	}
 // > End Select
+
+// < Delete
+	
+	public boolean deleteData(int tableIndex, String whereClause) 
+	{
+		return deleteData(tables[tableIndex], whereClause);
+	}
+	
+	public boolean deleteData(ElementTable table, String whereClause) 
+	{
+		return deleteData(table._tableName, whereClause);
+	}
+	
+	public boolean deleteData(String tableName, String whereClause) 
+	{
+		String query = "DELETE FROM " + tableName + " " + whereClause;
+		
+		return execSQL(query);
+	}
+	
+// > End Delete	
 	
 // < Drop
 	public boolean dropTable(int tableIndex)
@@ -286,72 +485,11 @@ public class GameDatabase extends SQLiteOpenHelper
 	{
 		String query = "DROP TABLE IF EXISTS " + tableName;
 		
-		return execute(query);
+		return execSQL(query);
 	}
 
 // > End Drop
 
-// < Delete
-	public boolean deleteData(int tableIndex, String where, String equals)
-	{
-		return deleteData(tableIndex, "WHERE " + where + " = '" + equals + "'");
-	}
-	
-	public boolean deleteData(int tableIndex, int colIdxToControl, String equals)
-	{
-		return deleteData(tableIndex, "WHERE " + tables[tableIndex]._colName[colIdxToControl] + " = '" + equals + "'");
-	}
-	
-	public boolean deleteData(int tableIndex, String condition)
-	{
-		return deleteData(tables[tableIndex]._tableName, condition);
-	}
-	
-	public boolean deleteData(String tableName, String condition) 
-	{
-		String query = "DELETE FROM " + tableName;
-		
-		if(!condition.isEmpty())
-		{
-			query += " " + condition;
-		}
-		
-		return execute(query);
-	}
-
-// > End Delete	
-	
-	public boolean execute(String query)
-	{
-		openConnection();
-		
-		try 
-		{
-			myDb.execSQL(query);
-			closeConnection();
-			return true;
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-		
-		closeConnection();
-		return false;
-	}
-	
-	public boolean resetDatabase() 
-	{
-		boolean status1 = false, status2 = false;
-		
-		for (ElementTable table : tables) 
-		{
-			status1 = dropTable(table);
-			status2 = createTable(table);
-		}
-		
-		return status1 && status2;
-	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {}

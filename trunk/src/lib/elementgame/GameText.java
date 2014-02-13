@@ -35,9 +35,9 @@ public class GameText extends Text
 
 	static Font getFont(int index, GameEngine mainActivity)
 	{
-		if(index == -1)
+		if(index < 0)
 		{
-			return mainActivity.font;
+			return mainActivity.getFont(index);
 		}
 		return null;
 	}

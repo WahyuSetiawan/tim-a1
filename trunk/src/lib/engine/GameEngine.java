@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 
 import lib.defines.FontDefines;
 import lib.defines.GameEngineConfiguration;
+import lib.defines.TableDefine;
 import lib.element.ElementTable;
 import lib.elementgame.GameDatabase;
 import lib.elementgame.GameFont;
@@ -121,7 +122,7 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		
 		createSystemFont();
 		
-		ElementTable[] tables = onCreateTables();
+		ElementTable[] tables = TableDefine.CONTAINER;
 		if(tables != null)
 		{
 			dbase = new GameDatabase(this, tables);
@@ -284,7 +285,16 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		return null;
 	}
 
-
+	public FPSCounter getFps() 
+	{
+		return fps;
+	}
+	
+	public GameDatabase getDatabase() 
+	{
+		return dbase;
+	}
+	
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) 
 	{
@@ -293,19 +303,7 @@ public abstract class GameEngine extends SimpleBaseGameActivity implements IUpda
 		return false;
 	}
 	
-	public FPSCounter getFps() 
-	{
-		return fps;
-	}
-	
-	public GameDatabase getDbase() 
-	{
-		return dbase;
-	}
-	
 	abstract protected void gameInit();
 	
 	abstract protected GameState[] onCreateState();
-	
-	abstract protected ElementTable[] onCreateTables();
 }

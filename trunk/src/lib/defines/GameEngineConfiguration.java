@@ -4,7 +4,7 @@ import org.andengine.engine.options.ScreenOrientation;
 
 public class GameEngineConfiguration 
 {
-	public static ScreenOrientation screenOrientation = ScreenOrientation.LANDSCAPE_FIXED;
+	public static ScreenOrientation screenOrientation = ScreenOrientation.LANDSCAPE_SENSOR;
 	
 	public static int masterWidth = 800;
 	
@@ -12,9 +12,9 @@ public class GameEngineConfiguration
 	
 	public static boolean isFullScreen = !false;
 	
-	public static boolean useSound = false;
+	public static boolean useSound = !false;
 	
-	public static boolean useMusic = false;
+	public static boolean useMusic = !false;
 	
 	public static boolean useUsualCamera 	= !false;
 	

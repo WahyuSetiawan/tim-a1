@@ -6,7 +6,8 @@ public interface SpriteDefines
 {
 	int BG_BELAKANG		= 0;
 	int BG_TENGAH		= BG_BELAKANG + 1;
-	int BG_FLOOR_DEPAN	= BG_TENGAH +1;
+	int BG_DEPAN		= BG_TENGAH +1;
+	int BG_FLOOR_DEPAN	= BG_DEPAN +1;
 	int BG_POHON		= BG_FLOOR_DEPAN + 1;
 	int BG_SEMAK		= BG_POHON + 1;
 	int BG_MENU_FILL 	= BG_SEMAK + 1;
@@ -27,9 +28,9 @@ public interface SpriteDefines
 	public final static ElementSprite CONTAINER[] = 
 	{
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/bg_belakang.png"),
-		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/3. bg_tengah.png"),
+		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/bg_tengah.png"),
+		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/bg_depan.png"),
 		new ElementSprite("gfx/gameplay/background/bg_floor_depan.png"),
-		//new ElementSprite(420, 620, "gfx/gameplay/object/bg_pohon.png"),
 		new ElementSprite(250, 400, "gfx/gameplay/object/bg_pohon.png"),
 		new ElementSprite(300, 200, "gfx/gameplay/object/bg_semak.png"),
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/menu/background/bg_fill.png"),
