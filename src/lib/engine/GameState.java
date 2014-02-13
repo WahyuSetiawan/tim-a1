@@ -6,6 +6,7 @@ import lib.defines.GameDefines;
 import lib.defines.MfxDefines;
 import lib.defines.SfxDefines;
 import lib.defines.SpriteDefines;
+import lib.defines.TableDefine;
 
 import org.andengine.entity.scene.IOnAreaTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -14,7 +15,7 @@ import org.andengine.input.touch.TouchEvent;
 import android.view.KeyEvent;
 
 public abstract class GameState implements IOnAreaTouchListener, SpriteDefines, AnimDefines, 
-	FontDefines, SfxDefines, MfxDefines, GameDefines
+	FontDefines, SfxDefines, MfxDefines, GameDefines, TableDefine
 {
 	private boolean isInitialized;
 	private boolean isPaused;

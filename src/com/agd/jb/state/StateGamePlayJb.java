@@ -29,6 +29,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite bg_belakang;
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
+	private GameSprite[] bg_depan		= new GameSprite[2];
 	private GameSprite[][] obstacle 	= new GameSprite[2][3];
 	private GameSprite pointer;
 	private GameSprite pohon;
@@ -79,12 +80,16 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
-			bg_tengah[loop] = new GameSprite(BG_TENGAH, engine);
+			bg_tengah[loop] 	= new GameSprite(BG_TENGAH, engine);
 		}
 		
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
 			bg_floor_depan[loop] = new GameSprite(BG_FLOOR_DEPAN, engine);
+		}
+		
+		for(int loop = 0; loop<bg_depan.length; loop++){
+			bg_depan[loop] 		= new GameSprite(BG_DEPAN, engine);
 		}
 		
 		pointer 		= new GameSprite(POINTER, engine);
@@ -154,6 +159,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			engine.scene.attachChild(bg_tengah[loop]);
 		}
 		
+		for (int loop = 0; loop < bg_tengah.length; loop++)
+		{
+			engine.scene.attachChild(bg_depan[loop]);
+		}
+		
 		engine.scene.attachChild(pohon);
 		engine.scene.attachChild(semak);
 		engine.scene.attachChild(pohon2);
@@ -191,6 +201,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
 			bg_tengah[loop].detachSelf();
+		}
+		
+		for (int loop = 0; loop < bg_tengah.length; loop++)
+		{
+			bg_depan[loop].detachSelf();
 		}
 		
 		pohon.detachSelf();
@@ -231,15 +246,16 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		bg_tengah[0].setX(0);
 		bg_tengah[1].setX(bg_tengah[0].getWidth());
 		
+		bg_depan[0].setX(0);
+		bg_depan[1].setX(bg_depan[0].getWidth());
+		
 		bg_floor_depan[0].setX(0);
 		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
 		
-		float flagbottompointer = pointer.getY() + (pointer.getHeight() /2);
-		
 		for(int loop = 0; loop < obstacle.length;loop++ ){
-			obstacle[loop][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[loop][0].getHeight()/2));
-			obstacle[loop][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[loop][1].getHeight()/2));
-			obstacle[loop][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, flagbottompointer - (obstacle[loop][2].getHeight()/2));
+			obstacle[loop][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 260);
+			obstacle[loop][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 365);
+			obstacle[loop][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 335);
 		}
 		
 		pointer.setPosition(PLAYERX, PLAYERY);
@@ -281,6 +297,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	protected void onUpdate()
 	{	
 		bg_belakang.setX(bg_belakang.getX() + SPEED);
+		
+		bg_depan[0].setX(bg_depan[0].getX() - 1.0f);
+		bg_depan[1].setX(bg_depan[1].getX() - 1.0f);
+		
 		pointer.setX(pointer.getX() + SPEED);
 		
 		speed_distance++;
@@ -299,6 +319,14 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}else if (bg_tengah[1].getX() + bg_tengah[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 		{
 			bg_tengah[1].setX(bg_tengah[0].getX() + bg_tengah[0].getWidth());
+		}
+		
+		if (bg_depan[0].getX() + bg_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+		{
+			bg_depan[0].setX(bg_depan[1].getX() + bg_depan[1].getWidth());
+		}else if (bg_depan[1].getX() + bg_depan[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+		{
+			bg_depan[1].setX(bg_depan[0].getX() + bg_depan[0].getWidth());
 		}
 		
 		if (bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
@@ -452,7 +480,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		while(i < flagobs[flag].length)
 		{
-			r = (300 * (i + 1)) + num.nextInt(75);
+			r = (RANGEOBSTACLE * (i + 1)) + num.nextInt(75);
 			
 			if(!(flagobs[flag][i] == DISABLE))
 			{

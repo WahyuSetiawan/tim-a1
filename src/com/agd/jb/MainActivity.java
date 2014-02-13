@@ -25,10 +25,4 @@ public class MainActivity extends GameEngine
 					new StateGamePlayJb(this),
 				};
 	}
-
-	@Override
-	protected ElementTable[] onCreateTables() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
