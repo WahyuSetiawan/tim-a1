@@ -30,12 +30,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite[] bg_depan		= new GameSprite[2];
+	
 	private GameSprite[][] obstacle 	= new GameSprite[2][3];
+	private GameSprite[] bigrock	= new GameSprite[2];
+	private GameSprite[] smallrock	= new GameSprite[2];
+	private GameSprite[] tree	= new GameSprite[2];
+	
 	private GameSprite pointer;
+	
 	private GameSprite pohon;
 	private GameSprite pohon2;
 	private GameSprite semak;
-	private GameSprite semak2;	
+	private GameSprite semak2;
+	
 	private GameSprite button_menu;
 	private GameSprite menu;
 	
@@ -53,20 +60,24 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	
 	private boolean jump;
 	private boolean isstart;
-	private int selectobs;
+	private boolean report;
 	
+	private int selectobs;
 	private int jump_player;
 	private int move_player;
+	private int speedplayerreport;
 	private int obsfirst;
 	private int obssecound;
 	private int time;
 	private int distance_player;
 	private int speed_distance;
-	
-	private float speed_jump;
 	private int speed_decrease;
+	
+	private float playerstartaccidentx;
+	private float speed_jump;
 	private float range_up;
 	private float flagout;
+	private float speedplayer;
 	
 	public StateGamePlayJb(GameEngine engine) 
 	{
@@ -99,9 +110,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		semak2			= new GameSprite(BG_SEMAK, engine);
 		
 		for(int loop = 0; loop < obstacle.length;loop++ ){
-			obstacle[loop][0]		= new GameSprite(BIG_ROCK, engine);
-			obstacle[loop][1]		= new GameSprite(SMALL_ROCK, engine);
-			obstacle[loop][2]		= new GameSprite(TREE, engine);
+			bigrock[loop]			= new GameSprite(BIG_ROCK, engine);
+			smallrock[loop]			= new GameSprite(SMALL_ROCK, engine);
+			tree[loop]			= new GameSprite(TREE, engine);
+			
+			obstacle[loop][0]		= new GameSprite(POINTER, engine);
+			obstacle[loop][1]		= new GameSprite(POINTER, engine);
+			obstacle[loop][2]		= new GameSprite(POINTER, engine);
 		}
 		
 		player_run 			= new GameAnim(ANIM_PLAYER_LARI, engine);
@@ -122,11 +137,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{
 		new ScreenCapture();
 		
+		//onScene
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
+		
+		//onPlayer
 		player_run.animate(SPEED_ANIM, true);
-		//player_fall.animate(SPEED_ANIM, true);
-		//player_accident.animate(SPEED_ANIM, true);
 		
 		player_run.setVisible(true);
 		player_fall.setVisible(false);
@@ -134,25 +150,37 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		player_doublejump.setVisible(false);
 		player_accident.setVisible(false);
 		
+		//on GamePlay
 		menu.setVisible(false);
 		button_menu.setVisible(false);
-		pointer.setAlpha(DISAPPEAR);
 		
-		flagout			= STARTOBS;
-		selectobs		= 0;
-		isstart			= false;
+		// on Update
+		speedplayer		= SPEED;
 		jump 			= false;
-		jump_player		= NETRAL;
-		move_player 	= UP;
-		speed_decrease 	= 0;
 		speed_jump 		= SPEED_JUMP;
+		report			= false;
+		distance_player	= 0;
+		speedplayerreport =  50;
+		playerstartaccidentx = 300;
+		
+		// on Area Touched
+		isstart			= false;
+		
+		// on Jump
+		speed_decrease 	= 0;
+		move_player 	= UP;
 		time			= 0;
-		distance_player	= 0;			
+		
+		// on Flag Obstacle
+		flagout			= STARTOBS;
+		jump_player		= NETRAL;
+		selectobs		= 0;
 	}
 
 	@Override
 	protected void attach() 
 	{
+		// attach backgound
 		engine.scene.attachChild(bg_belakang);
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
@@ -164,22 +192,31 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			engine.scene.attachChild(bg_depan[loop]);
 		}
 		
+		// attach object gameplay
 		engine.scene.attachChild(pohon);
 		engine.scene.attachChild(semak);
 		engine.scene.attachChild(pohon2);
 		engine.scene.attachChild(semak2);
 		
+		// attach floor
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
 			engine.scene.attachChild(bg_floor_depan[loop]);
 		}
 		
+		
+		//attach obstacle
 		for(int loop = 0; loop < obstacle.length;loop++ ){
 			engine.scene.attachChild(obstacle[loop][0]);
 			engine.scene.attachChild(obstacle[loop][1]);
 			engine.scene.attachChild(obstacle[loop][2]);
+			
+			obstacle[loop][0].attachChild(bigrock[loop]);
+			obstacle[loop][1].attachChild(smallrock[loop]);
+			obstacle[loop][2].attachChild(tree[loop]);
 		}
 		
+		//attach player
 		engine.scene.attachChild(pointer);
 		pointer.attachChild(player_run);
 		pointer.attachChild(player_accident);
@@ -187,6 +224,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		pointer.attachChild(player_jump);
 		pointer.attachChild(player_doublejump);
 		
+		
+		//attach menu gameplay
 		engine.hud.attachChild(menu);
 		menu.attachChild(button_menu);
 		
@@ -197,6 +236,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void detach()
 	{		
+		//detach background
 		bg_belakang.detachSelf();
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
@@ -208,30 +248,38 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			bg_depan[loop].detachSelf();
 		}
 		
+		//detach ornamen
 		pohon.detachSelf();
 		semak.detachSelf();
 		pohon2.detachSelf();
 		semak2.detachSelf();
 		
+		//detach obstacle
 		for(int loop = 0; loop < obstacle.length;loop++ ){
 			obstacle[loop][0].detachSelf();
 			obstacle[loop][1].detachSelf();
 			obstacle[loop][2].detachSelf();
+			
+			bigrock[loop].detachSelf();
+			smallrock[loop].detachSelf();
+			tree[loop].detachSelf();
 		}
 		
+		//detach floor
 		for (int loop = 0; loop < bg_floor_depan.length; loop++)
 		{
 			bg_floor_depan[loop].detachSelf();
 		}
 		
+		//detach player
 		pointer.detachSelf();
-		
 		player_run.detachSelf();
 		player_fall.detachSelf();
 		player_jump.detachSelf();
 		player_doublejump.detachSelf();
 		player_accident.detachSelf();
 		
+		//detach utility
 		menu.detachSelf();
 		button_menu.detachSelf();
 		distance.detachSelf();
@@ -241,6 +289,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void setPosition() 
 	{
+		//setposition background
 		bg_belakang.setPosition(139,0);
 		
 		bg_tengah[0].setX(0);
@@ -249,34 +298,56 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		bg_depan[0].setX(0);
 		bg_depan[1].setX(bg_depan[0].getWidth());
 		
-		bg_floor_depan[0].setX(0);
-		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
-		
-		for(int loop = 0; loop < obstacle.length;loop++ ){
-			obstacle[loop][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 260);
-			obstacle[loop][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 365);
-			obstacle[loop][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 335);
-		}
-		
-		pointer.setPosition(PLAYERX, PLAYERY);
-		
-		player_run.setPosition(-37, -18);
-		player_fall.setPosition(-37, -18);
-		player_jump.setPosition(-37, -18);
-		player_doublejump.setPosition(-37, -18);
-		player_accident.setPosition(-37, -18);
-		
-		button_menu.setPosition(Anchor.BOTTOM_CENTER);
-		menu.setPosition(Anchor.CENTER);
-		
+		//setposition object
 		pohon.setX(engine.camera.getXMin());
 		pohon2.setX(engine.camera.getXMin());
 		semak.setX(engine.camera.getXMin());
 		semak2.setX(engine.camera.getXMin());
+				
 		
+		//setposition  floor
+		bg_floor_depan[0].setX(0);
+		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
+		
+		//setposition obstacle
+		for(int loop = 0; loop < obstacle.length;loop++ ){
+			obstacle[loop][0].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 260);
+			obstacle[loop][1].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 365);
+			obstacle[loop][2].setPosition(engine.camera.getXMin() - GameEngineConfiguration.masterWidth, 386);
+			
+			obstacle[loop][0].setHeight(161);
+			obstacle[loop][0].setWidth(30);
+			obstacle[loop][0].setAlpha(0f);
+			
+			obstacle[loop][1].setHeight(55);
+			obstacle[loop][1].setWidth(30);
+			obstacle[loop][1].setAlpha(0f);
+			
+			obstacle[loop][2].setHeight(30);
+			obstacle[loop][2].setWidth(190);
+			obstacle[loop][2].setAlpha(0f);
+			
+			bigrock[loop].setPosition(-50,0);
+			smallrock[loop].setPosition(-25,0);
+			tree[loop].setPosition(0,-51);
+		}
+		
+		//set position player
+		pointer.setPosition(PLAYERX, PLAYERY);
+		pointer.setWidth(40);
+		pointer.setHeight(85);
+		pointer.setAlpha(0f);
+		
+		player_run.setPosition(-42, -18);
+		player_fall.setPosition(-42, -18);
+		player_jump.setPosition(-42, -18);
+		player_doublejump.setPosition(-42, -18);
+		player_accident.setPosition(-42, -18);
+		
+		//setposition untility
+		button_menu.setPosition(Anchor.BOTTOM_CENTER);
+		menu.setPosition(Anchor.CENTER);
 		status.setPosition(Anchor.TOP_RIGHT);
-		
-		
 	}
 
 	@Override
@@ -296,83 +367,131 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void onUpdate()
 	{	
-		bg_belakang.setX(bg_belakang.getX() + SPEED);
-		
-		bg_depan[0].setX(bg_depan[0].getX() - 1.0f);
-		bg_depan[1].setX(bg_depan[1].getX() - 1.0f);
-		
-		pointer.setX(pointer.getX() + SPEED);
-		
-		speed_distance++;
-		
-		if(speed_distance == SPEED_DISTANCE){
-			distance_player++;
-			distance.setText(String.valueOf(distance_player));
-			speed_distance = 0;
-		}
-		
-		engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2 - 60, engine.camera.getCenterY());
-		
-		if (bg_tengah[0].getX() + bg_tengah[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_tengah[0].setX(bg_tengah[1].getX() + bg_tengah[1].getWidth());
-		}else if (bg_tengah[1].getX() + bg_tengah[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_tengah[1].setX(bg_tengah[0].getX() + bg_tengah[0].getWidth());
-		}
-		
-		if (bg_depan[0].getX() + bg_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_depan[0].setX(bg_depan[1].getX() + bg_depan[1].getWidth());
-		}else if (bg_depan[1].getX() + bg_depan[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_depan[1].setX(bg_depan[0].getX() + bg_depan[0].getWidth());
-		}
-		
-		if (bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
-		{
-			bg_floor_depan[0].setX(bg_floor_depan[1].getX()+ bg_floor_depan[1].getWidth());
-		}else if (bg_floor_depan[1].getX() + bg_floor_depan[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
-		{
-			bg_floor_depan[1].setX(bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth());
-		}
-		
-		
-		switch (num.nextInt(75)) {
-		case 1:
-			if(!(engine.camera.getXMin() - pohon.getWidth()< pohon.getX())&& !(pohon.getX()>engine.camera.getXMax()))
-			{
-				pohon.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_LEFT);
+		if(!report){
+			/*
+			 * set speed jalan untuk player dan background
+			 * */
+			
+			bg_belakang.setX(bg_belakang.getX() + SPEED);
+			
+			bg_depan[0].setX(bg_depan[0].getX() - SPEEDBGTENGAH);
+			bg_depan[1].setX(bg_depan[1].getX() - SPEEDBGTENGAH);
+			
+			pointer.setX(pointer.getX() + speedplayer);
+			
+			/*
+			 * pengaturan hitungan score
+			 * */
+			speed_distance++;
+			
+			if(speed_distance == SPEED_DISTANCE){
+				distance_player++;
+				distance.setText(String.valueOf(distance_player));
+				speed_distance = 0;
 			}
-			break;
-		case 2:
-			if(!(engine.camera.getXMin() - semak.getWidth()< semak.getX())&& !(semak.getX()>engine.camera.getXMax()))
+			
+			/*
+			 * set camera position untuk player
+			 * */
+			engine.camera.setCenter(pointer.getX() + GameEngine.cameraWidth / 2 - 60, engine.camera.getCenterY());
+			
+			/*
+			 * coding untuk melakukan looping background
+			 * */
+			if (bg_tengah[0].getX() + bg_tengah[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 			{
-				semak.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_LEFT);
-			}
-			break;
-		case 3:
-			if(!(engine.camera.getXMin() - pohon2.getWidth()< pohon2.getX())&& !(pohon2.getX()>engine.camera.getXMax()))
+				bg_tengah[0].setX(bg_tengah[1].getX() + bg_tengah[1].getWidth());
+			}else if (bg_tengah[1].getX() + bg_tengah[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 			{
-				pohon2.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_RIGHT);
+				bg_tengah[1].setX(bg_tengah[0].getX() + bg_tengah[0].getWidth());
 			}
-			break;
-		case 4:
-			if(!(engine.camera.getXMin() - semak2.getWidth()< semak2.getX())&& !(semak2.getX()>engine.camera.getXMax()))
+			
+			if (bg_depan[0].getX() + bg_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
 			{
-				semak2.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_CENTER);
+				bg_depan[0].setX(bg_depan[1].getX() + bg_depan[1].getWidth());
+			}else if (bg_depan[1].getX() + bg_depan[1].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+			{
+				bg_depan[1].setX(bg_depan[0].getX() + bg_depan[0].getWidth());
 			}
-			break;
-		}
-		
-		if(engine.camera.getXMax() > flagout)
-		{
-			flagout = flagout + setFlag(obstacle, num.nextInt(FLAGOBS[0].length - 1), FLAGOBS);
-		}
-		
-		if(jump)
-		{
-			doubleJump(pointer, PLAYERY, speed_jump, 13);
+			
+			if (bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth() < engine.camera.getCenterX() - GameEngine.cameraWidth / 2)
+			{
+				bg_floor_depan[0].setX(bg_floor_depan[1].getX()+ bg_floor_depan[1].getWidth());
+			}else if (bg_floor_depan[1].getX() + bg_floor_depan[1].getWidth() < engine.camera.getCenterX()- GameEngine.cameraWidth / 2)
+			{
+				bg_floor_depan[1].setX(bg_floor_depan[0].getX() + bg_floor_depan[0].getWidth());
+			}
+			
+			/*
+			 * event collusion player ddengan obstacle
+			 * */
+			for(int loop = 0; loop < obstacle.length;loop++ ){
+				for (int i = 0; i < obstacle[loop].length; i++) {
+					if(pointer.collidesWith(obstacle[loop][i])){
+						player_run.stopAnimation();
+						player_run.setVisible(false);
+						player_accident.setVisible(true);
+						player_accident.animate(SPEEDACCIDENT, false);
+						playerstartaccidentx += pointer.getX();
+						report = true;
+					}
+				}
+			}
+			
+			/*
+			 * menentukan object yang akan keluar
+			 * */
+			switch (num.nextInt(75)) {
+			case 1:
+				if(!(engine.camera.getXMin() - pohon.getWidth()< pohon.getX())&& !(pohon.getX()>engine.camera.getXMax()))
+				{
+					pohon.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_LEFT);
+				}
+				break;
+			case 2:
+				if(!(engine.camera.getXMin() - semak.getWidth()< semak.getX())&& !(semak.getX()>engine.camera.getXMax()))
+				{
+					semak.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_LEFT);
+				}
+				break;
+			case 3:
+				if(!(engine.camera.getXMin() - pohon2.getWidth()< pohon2.getX())&& !(pohon2.getX()>engine.camera.getXMax()))
+				{
+					pohon2.setPosition(engine.camera.getXMax(), 0, Anchor.CENTER_RIGHT);
+				}
+				break;
+			case 4:
+				if(!(engine.camera.getXMin() - semak2.getWidth()< semak2.getX())&& !(semak2.getX()>engine.camera.getXMax()))
+				{
+					semak2.setPosition(engine.camera.getXMax(), 25, Anchor.BOTTOM_CENTER);
+				}
+				break;
+			}
+			
+			/*
+			 * mengeset flag player obstacle
+			 * */
+			if(engine.camera.getXMax() > flagout)
+			{
+				flagout = flagout + setFlag(obstacle, num.nextInt(FLAGOBS[0].length - 1), FLAGOBS);
+			}
+			
+			/*
+			 * pemangilan method jump
+			 * action jump player
+			 * */
+			if(jump)
+			{
+				doubleJump(pointer, PLAYERY, speed_jump, 13);
+			}
+		}else if(report){
+			if(pointer.getX() < playerstartaccidentx){
+				pointer.setX(pointer.getX() + SPEED);
+			}
+			else 
+			{
+				status.setText("finish");
+			}
 		}
 	}
 
@@ -475,8 +594,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}
 		
 		obsfirst = flag;
-		
-		status.setText(String.valueOf(obstacle.length));
 		
 		while(i < flagobs[flag].length)
 		{

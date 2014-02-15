@@ -6,4 +6,6 @@ public interface ValuePlay {
 	
 	static final float DISAPPEAR 	= 0f;
 	static final float ARISE		= 1f; 
+	
+	static final float SPEEDBGTENGAH = 1.0f ;
 }

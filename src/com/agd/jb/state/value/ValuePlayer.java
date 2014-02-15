@@ -6,4 +6,5 @@ public interface ValuePlayer {
 	static final float PLAYERX		= 200f;
 	static final float PLAYERY 	    = 320f;
 	static final long SPEED_ANIM 	= 70;
+	static final long SPEEDACCIDENT = 300;
 }
