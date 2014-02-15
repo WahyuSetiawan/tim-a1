@@ -60,12 +60,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	
 	private boolean jump;
 	private boolean isstart;
-	private boolean report;
+	private boolean coolidgerun;
+	private boolean coolidgejump;
+	private boolean run;
 	
 	private int selectobs;
 	private int jump_player;
 	private int move_player;
-	private int speedplayerreport;
 	private int obsfirst;
 	private int obssecound;
 	private int time;
@@ -155,12 +156,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu.setVisible(false);
 		
 		// on Update
+		run 			= true;
 		speedplayer		= SPEED;
 		jump 			= false;
 		speed_jump 		= SPEED_JUMP;
-		report			= false;
+		coolidgerun			= false;
 		distance_player	= 0;
-		speedplayerreport =  50;
 		playerstartaccidentx = 300;
 		
 		// on Area Touched
@@ -367,7 +368,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void onUpdate()
 	{	
-		if(!report){
+		if(run){
 			/*
 			 * set speed jalan untuk player dan background
 			 * */
@@ -428,12 +429,33 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			for(int loop = 0; loop < obstacle.length;loop++ ){
 				for (int i = 0; i < obstacle[loop].length; i++) {
 					if(pointer.collidesWith(obstacle[loop][i])){
-						player_run.stopAnimation();
-						player_run.setVisible(false);
-						player_accident.setVisible(true);
-						player_accident.animate(SPEEDACCIDENT, false);
-						playerstartaccidentx += pointer.getX();
-						report = true;
+						if(pointer.getY() < PLAYERY){
+							if(player_doublejump.isVisible()){
+								player_doublejump.stopAnimation();
+								player_doublejump.setVisible(false);
+								player_accident.setVisible(true);
+								player_accident.animate(SPEEDACCIDENT, false);
+								playerstartaccidentx += pointer.getX();
+								run = false;
+								coolidgejump = true;
+							}else if(player_jump.isVisible()){
+								player_jump.stopAnimation();
+								player_jump.setVisible(false);
+								player_accident.setVisible(true);
+								player_accident.animate(SPEEDACCIDENT, false);
+								playerstartaccidentx += pointer.getX();
+								run = false;
+								coolidgejump = true;
+							}
+						}else{
+							player_run.stopAnimation();
+							player_run.setVisible(false);
+							player_accident.setVisible(true);
+							player_accident.animate(SPEEDACCIDENT, false);
+							playerstartaccidentx += pointer.getX();
+							run = false;
+							coolidgerun = true;
+						}
 					}
 				}
 			}
@@ -484,14 +506,30 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			{
 				doubleJump(pointer, PLAYERY, speed_jump, 13);
 			}
-		}else if(report){
-			if(pointer.getX() < playerstartaccidentx){
-				pointer.setX(pointer.getX() + SPEED);
+		}else if(!run){
+			if(coolidgerun){
+				if(pointer.getX() < playerstartaccidentx){
+					pointer.setX(pointer.getX() + SPEED);
+				}
+				else 
+				{
+					status.setText("finish");
+				}
 			}
-			else 
-			{
-				status.setText("finish");
+			else
+			if (coolidgejump){
+				if(pointer.getX() < playerstartaccidentx){
+					if(pointer.getY() < PLAYERY){
+						pointer.setY(pointer.getY() + speed_jump);
+					}
+					pointer.setX(pointer.getX() + SPEED);
+				}
+				else 
+				{
+					status.setText("finish");
+				}
 			}
+			
 		}
 	}
 
