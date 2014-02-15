@@ -19,9 +19,12 @@ import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
+import lib.elementgame.Mfx;
+import lib.elementgame.Sfx;
 import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
+import lib.engine.Utils;
 
 public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueActionJump, ValuePlay, ValueFlagObs
 {
@@ -47,6 +50,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	
 	private GameText distance;
 	private GameText status;
+	private GameText txtScore;
+	
+	private int highscore = 0;
 	
 	private Random num = new Random();
 	
@@ -137,11 +143,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		distance 	= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 		status		= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		txtScore	= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
 	protected void init() 
 	{
+		String strScore = engine.getDatabase().getData(TABLE_SCORE, 0, 1);
+		engine.getDatabase().print(TABLE_SCORE);
+		engine.getDatabase().insertData(0, new String[]{"0","10"});
+		highscore = Integer.parseInt(strScore);
+		txtScore.setText("Score : " + highscore);
+		
+		
 		new ScreenCapture();
 		
 		//onScene
@@ -249,6 +263,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		engine.hud.attachChild(distance);
 		engine.hud.attachChild(status);
+		
+		engine.hud.attachChild(txtScore);
 	}
 
 	@Override
@@ -307,6 +323,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu.detachSelf();
 		distance.detachSelf();
 		status.detachSelf();
+		
+		txtScore.detachSelf();
 	}
 
 	@Override
@@ -376,6 +394,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
 		menu.setPosition(Anchor.CENTER);
 		status.setPosition(Anchor.TOP_RIGHT);
+		
+		txtScore.setPosition(Anchor.TOP_CENTER);
 	}
 
 	@Override
@@ -595,6 +615,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		menu.setVisible(true);
 		button_menu.setVisible(true);
 		player_run.stopAnimation();
+		Mfx.Pause(MUSIC_GP_JUNGLE);
+		Sfx.Pause(SOUND_RUN_GRASS);
 	}
 
 	@Override
@@ -603,20 +625,29 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		menu.setVisible(false);
 		button_menu.setVisible(false);
 		player_run.animate(SPEED_ANIM, true);
+		Mfx.Play(MUSIC_GP_JUNGLE);
+		Sfx.Play(SOUND_RUN_GRASS);
 	}
 
 	@Override
 	public void onKeyUp(int keyCode, KeyEvent event) 
 	{
+		engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE id_score = 0");
+		engine.finish();
+		
 		if(keyCode == KeyEvent.KEYCODE_BACK) 
 		{
 			if(isPaused())
 			{
 				resume();
+				Mfx.Play(MUSIC_GP_JUNGLE);
+				Sfx.Play(SOUND_RUN_GRASS);
 			}
 			else
 			{ 	
 				pause();
+				Mfx.Pause(MUSIC_GP_JUNGLE);
+				Sfx.Pause(SOUND_RUN_GRASS);
 			}
 		}
 	}
@@ -633,7 +664,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		case TouchEvent.ACTION_UP:
 			{
 				if(pTouchArea == bg_belakang && !isPaused() && isstart)
-				{
+				{	
+					
+					Sfx.Pause(SOUND_RUN_GRASS);
+					GameEngineConfiguration.useSound = false;
+					
 					jump = true;
 					++jump_player;
 					
@@ -656,8 +691,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 						break;
 					default:
 						jump_player=SINGLE_JUMP;
+						Sfx.Pause(SOUND_RUN_GRASS);
+						Sfx.Play(SOUND_JUMP);
 						break;
 					} 
+					Sfx.Play(SOUND_RUN_GRASS);
+					GameEngineConfiguration.useSound = true;
+					
 				}
 				else if(pTouchArea == bg_belakang && !isPaused() && !isstart){
 					isstart = true;
@@ -730,6 +770,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{		
 		switch (move_player) {
 		case UP:
+			Sfx.Play(SOUND_DBL_JUMP);
+			GameEngineConfiguration.useSound = true;
+			
+			Sfx.Pause(SOUND_RUN_GRASS);
+			GameEngineConfiguration.useSound = false;
+			
 			if (speed_decrease == 0){
 				speed_decrease = (int) speed;
 				speed_decrease--;
@@ -766,7 +812,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				jump_player = NETRAL;
 				move_player = UP;
 			}
-				
 			
 			break;
 		}

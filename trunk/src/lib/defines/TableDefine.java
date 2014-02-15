@@ -9,6 +9,6 @@ public interface TableDefine
 	
 	ElementTable[] CONTAINER =
 	{ 
-		new ElementTable("Highscore", new String []{"Highscore"}, new String []{"0"}),
+		new ElementTable("score", new String[]{"Id_Score", "Score"}, new String[]{"0","0"}),
 	};
 }
