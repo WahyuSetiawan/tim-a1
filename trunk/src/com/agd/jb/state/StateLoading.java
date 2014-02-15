@@ -3,15 +3,22 @@ package com.agd.jb.state;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
 
+import com.agd.jb.state.value.StateDefine;
+
+import android.R.string;
 import android.view.KeyEvent;
+import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameSprite;
+import lib.elementgame.GameText;
+import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
 
-public class StateLoading extends GameState {
+public class StateLoading extends GameState implements StateDefine {
 	
-	private GameSprite loading;
-
+	private GameSprite splash;
+	private GameSprite loadingbar;
+	
 	public StateLoading(GameEngine engine) {
 		super(engine);
 		// TODO Auto-generated constructor stub
@@ -27,31 +34,32 @@ public class StateLoading extends GameState {
 
 	@Override
 	public void initComponent() {
-		loading = new GameSprite(LOADING, engine);
-
+		splash 		= new GameSprite(SPLASH, engine);
+		loadingbar 	= new GameSprite(LOADINGBAR, engine);
 	}
 
 	@Override
 	protected void init() {
-		// TODO Auto-generated method stub
+		loadingbar.setHeight(30);
+		loadingbar.setWidth(0);
 	}
 
 	@Override
 	protected void attach() {
-		// TODO Auto-generated method stub
-
+		engine.scene.attachChild(splash);
+		engine.scene.attachChild(loadingbar);
 	}
 
 	@Override
 	protected void detach() {
-		// TODO Auto-generated method stub
-
+		splash.detachSelf();
+		loadingbar.detachSelf();
 	}
 
 	@Override
 	protected void setPosition() {
-		// TODO Auto-generated method stub
-
+		splash.setPosition(0,0);
+		loadingbar.setPosition(GameEngineConfiguration.masterWidth / 8 , 400);
 	}
 
 	@Override
@@ -68,8 +76,14 @@ public class StateLoading extends GameState {
 
 	@Override
 	protected void onUpdate() {
-		// TODO Auto-generated method stub
-
+		if(loadingbar.getX() + loadingbar.getWidth() > engine.camera.getWidth() - (engine.camera.getWidth() / 8))
+		{
+			exitState(STATE_MENU);
+		}
+		else
+		{
+			loadingbar.setWidth(loadingbar.getWidth() + 2);
+		}
 	}
 
 	@Override

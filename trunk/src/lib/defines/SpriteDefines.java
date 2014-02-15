@@ -20,7 +20,8 @@ public interface SpriteDefines
 	int SEMAK			= TREE + 1;
 	int MENU			= SEMAK + 1;
 	int BUTTON_MENU		= MENU +1;
-	int LOADING			= BUTTON_MENU +1;
+	int SPLASH			= BUTTON_MENU +1;
+	int LOADINGBAR		= SPLASH +1;
 	
 	int backgroundHeight 	= GameEngineConfiguration.masterHeight;
 	int backgroundWidth 	= GameEngineConfiguration.masterWidth;	
@@ -43,6 +44,7 @@ public interface SpriteDefines
 		new ElementSprite("gfx/gameplay/object/SEMAK.png"),
 		new ElementSprite("gfx/gameplay/menu/menu.png"),
 		new ElementSprite( 55, 40,"gfx/gameplay/menu/button_menu.png"),
-		new ElementSprite("gfx/loading/loading.jpg"),
+		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/loading/splash.png"),
+		new ElementSprite("gfx/loading/loading_bar.png"),
 	};
 }
