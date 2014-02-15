@@ -2,6 +2,7 @@ package com.agd.jb;
 
 import com.agd.jb.state.StateGameMenuJb;
 import com.agd.jb.state.StateGamePlayJb;
+import com.agd.jb.state.StateLoading;
 
 import lib.element.ElementTable;
 import lib.engine.GameEngine;
@@ -21,6 +22,7 @@ public class MainActivity extends GameEngine
 	{		
 		return new GameState[] 
 				{
+					new StateLoading(this),
 					new StateGameMenuJb(this),
 					new StateGamePlayJb(this),
 				};
