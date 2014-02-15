@@ -10,8 +10,11 @@ import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
 
 import android.view.KeyEvent;
+import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
+import lib.elementgame.Mfx;
+import lib.elementgame.Sfx;
 import lib.engine.Anchor;
 import lib.engine.GameEngine;
 import lib.engine.GameState;
@@ -204,6 +207,17 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 				{
 					if (pTouchArea == text_play) {
 						exitState(STATE_PLAY);
+						Mfx.Play(MUSIC_GP_JUNGLE);
+						GameEngineConfiguration.useMusic = true;
+						Sfx.Play(SOUND_RUN_GRASS);
+						GameEngineConfiguration.useSound = true;
+					} 
+					else 
+					{
+						Mfx.Pause(MUSIC_GP_JUNGLE);
+						GameEngineConfiguration.useMusic = false;
+						Sfx.Pause(SOUND_RUN_GRASS);
+						GameEngineConfiguration.useSound = false;
 					}
 				}
 				break;
