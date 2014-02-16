@@ -8,6 +8,11 @@ public interface ValuePlay {
 	static final float ARISE			= 1f; 
 	
 	static final float SPEEDBGTENGAH 	= 1.0f ;
+	
+	static final int COUNT				= 3;
+	
+	static final int COUNTOBS			= 3;
+	
 	static final long DURATION_APPLE	= 234;
 	
 	static final float LOCATIONYPOINT	= 365;

@@ -2,9 +2,12 @@ package com.agd.jb.state;
 
 import java.util.Random;
 
+import javax.security.auth.PrivateCredentialPermission;
+
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.shader.PositionColorShaderProgram;
 
 import com.agd.jb.state.value.ValueActionJump;
 import com.agd.jb.state.value.ValueCamera;
@@ -12,10 +15,14 @@ import com.agd.jb.state.value.ValuePlay;
 import com.agd.jb.state.value.ValuePlayer;
 import com.agd.jb.state.value.StateDefine;
 import com.agd.jb.state.value.ValueFlagObs;
+import com.agd.jb.state.value.ValueReport;
 
 import android.view.KeyEvent;
 
 import lib.defines.GameEngineConfiguration;
+import lib.element.Element;
+import lib.element.ElementSound;
+import lib.element.ElementSprite;
 import lib.elementgame.GameAnim;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
@@ -26,17 +33,17 @@ import lib.engine.GameEngine;
 import lib.engine.GameState;
 import lib.engine.Utils;
 
-public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueActionJump, ValuePlay, ValueFlagObs
+public class StateGamePlayJb extends GameState  implements StateDefine, ValueCamera, ValuePlayer, ValueActionJump, ValuePlay, ValueFlagObs, ValueReport
 {
 	private GameSprite bg_belakang;
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite[] bg_depan		= new GameSprite[2];
 	
-	private GameSprite[][] obstacle 	= new GameSprite[2][3];
-	private GameSprite[] bigrock		= new GameSprite[2];
-	private GameSprite[] smallrock		= new GameSprite[2];
-	private GameSprite[] tree			= new GameSprite[2];
+	private GameSprite[][] obstacle 	= new GameSprite[COUNT][COUNTOBS];
+	private GameSprite[] bigrock		= new GameSprite[COUNT];
+	private GameSprite[] smallrock		= new GameSprite[COUNT];
+	private GameSprite[] tree			= new GameSprite[COUNT];
 	
 	private GameSprite pointer;
 	
@@ -45,24 +52,36 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameSprite semak;
 	private GameSprite semak2;
 	
+	private GameSprite bg_report;
+	private GameSprite button_play;
+	private GameSprite button_play_push;
+	private GameSprite button_pocket;
+	private GameSprite button_pocket_push;
+	private GameSprite button_quit;
+	private GameSprite button_quit_push;
+	
 	private GameSprite button_menu;
 	private GameSprite menu;
 	
 	private GameText distance;
 	private GameText status;
 	private GameText txtScore;
+	private GameText report_score;
+	private GameText report_apple;
 	
 	private int highscore = 0;
 	
 	private Random num = new Random();
 	
-	private GameAnim[] point = new GameAnim[3];
+	private GameAnim[][] point = new GameAnim[COUNT][COUNTOBS];
 	
 	private GameAnim player_run;
 	private GameAnim player_jump;
 	private GameAnim player_doublejump;
 	private GameAnim player_fall;
 	private GameAnim player_accident;
+	
+	private GameAnim apple_report;
 	
 	private boolean jump;
 	private boolean isstart;
@@ -74,6 +93,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private int jump_player;
 	private int move_player;
 	private int obsfirst;
+	private int highscore;
 	private int obssecound;
 	private int score;
 	private int time;
@@ -109,19 +129,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}
 		
 		for(int loop = 0; loop<bg_depan.length; loop++){
-			bg_depan[loop] 		= new GameSprite(BG_DEPAN, engine);
+			bg_depan[loop] 	= new GameSprite(BG_DEPAN, engine);
 		}
 		
-		pointer 		= new GameSprite(POINTER, engine);
-		pohon			= new GameSprite(BG_POHON, engine);
-		pohon2			= new GameSprite(BG_POHON, engine);
-		semak			= new GameSprite(BG_SEMAK, engine);
-		semak2			= new GameSprite(BG_SEMAK, engine);
+		pointer 			= new GameSprite(POINTER, engine);
+		pohon				= new GameSprite(BG_POHON, engine);
+		pohon2				= new GameSprite(BG_POHON, engine);
+		semak				= new GameSprite(BG_SEMAK, engine);
+		semak2				= new GameSprite(BG_SEMAK, engine);
 		
 		for(int loop = 0; loop < obstacle.length;loop++ ){
 			bigrock[loop]			= new GameSprite(BIG_ROCK, engine);
 			smallrock[loop]			= new GameSprite(SMALL_ROCK, engine);
-			tree[loop]			= new GameSprite(TREE, engine);
+			tree[loop]				= new GameSprite(TREE, engine);
 			
 			obstacle[loop][0]		= new GameSprite(POINTER, engine);
 			obstacle[loop][1]		= new GameSprite(POINTER, engine);
@@ -129,7 +149,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		}
 		
 		for (int loop = 0; loop < point.length; loop++) {
-			point[loop]= new GameAnim(ANIM_POINT_APPLE, engine); 
+			for (int i = 0; i < point[loop].length; i++) {
+				point[loop][i]		= new GameAnim(ANIM_POINT_APPLE, engine); 
+			}
 		}
 		
 		player_run 			= new GameAnim(ANIM_PLAYER_LARI, engine);
@@ -138,11 +160,24 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		player_doublejump	= new GameAnim(ANIM_PLAYER_DOUBLEJUMP, engine);
 		player_fall			= new GameAnim(ANIM_PLAYER_LUBANG, engine);
 		
-		button_menu 	= new GameSprite(BUTTON_MENU, engine);
-		menu			= new GameSprite(MENU, engine);
+		bg_report			= new GameSprite(BG_REPORT, engine);
+		button_play			= new GameSprite(PLAY_BUTTON, engine);
+		button_play_push	= new GameSprite(PLAY_PUSH, engine);
+		button_pocket		= new GameSprite(POCKET_BUTTON, engine);
+		button_pocket_push	= new GameSprite(POCKET_PUSH, engine);
+		button_quit			= new GameSprite(QUIT_BUTTON, engine);
+		button_quit_push	= new GameSprite(QUIT_PUSH, engine);
 		
-		distance 	= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
-		status		= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		button_menu 		= new GameSprite(BUTTON_MENU, engine);
+		menu				= new GameSprite(MENU, engine);
+		
+		apple_report		= new GameAnim(ANIM_POINT_APPLE, engine);
+		
+		distance 			= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		status				= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		report_apple		= new GameText("xxxxxxx", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
+		report_score		= new GameText("score : CCCCCCC", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
+		txtScore			= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 		txtScore	= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
@@ -161,6 +196,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		//onScene
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
+		//on sound sfx mfx
+		Sfx.Play(SOUND_RUN_GRASS);
+		GameEngineConfiguration.useSound = true;
 		
 		//onPlayer
 		player_run.animate(SPEED_ANIM, true);
@@ -174,9 +212,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		//on GamePlay
 		menu.setVisible(false);
 		button_menu.setVisible(false);
+		highscore = 0;
 		
 		for (int loop = 0; loop < point.length; loop++) {
-			point[loop].animate(DURATION_APPLE, true); 
+			for (int i = 0; i < point[loop].length; i++) {
+				point[loop][i].animate(DURATION_APPLE, true); 
+			}
 		}
 		
 		// on Update
@@ -192,6 +233,18 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		// on Area Touched
 		isstart			= false;
+		
+		//on report
+		bg_report.setVisible(false);
+		button_play.setAlpha(1f);
+		button_play_push.setAlpha(0f);
+		button_pocket.setAlpha(1f);
+		button_pocket_push.setAlpha(0f);
+		button_quit.setAlpha(1f);
+		button_quit_push.setAlpha(0f);
+		
+		apple_report.animate(DURATION_APPLE, true);
+		
 		
 		// on Jump
 		speed_decrease 	= 0;
@@ -234,7 +287,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		//attach apple point
 		
 		for (int loop = 0; loop < point.length; loop++) {
-			engine.scene.attachChild(point[loop]);
+			for (int i = 0; i < point[loop].length; i++) {
+				engine.scene.attachChild(point[loop][i]);
+			}
 		}
 		
 		//attach obstacle
@@ -255,6 +310,18 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		pointer.attachChild(player_fall);
 		pointer.attachChild(player_jump);
 		pointer.attachChild(player_doublejump);
+		
+		// attach report
+		engine.hud.attachChild(bg_report);
+		bg_report.attachChild(button_play);
+		button_play.attachChild(button_play_push);
+		bg_report.attachChild(button_pocket);
+		button_pocket.attachChild(button_pocket_push);
+		bg_report.attachChild(button_quit);
+		button_quit.attachChild(button_quit_push);
+		bg_report.attachChild(apple_report);
+		bg_report.attachChild(report_apple);
+		bg_report.attachChild(report_score);
 		
 		
 		//attach menu gameplay
@@ -290,7 +357,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		//detach point
 		for (int loop = 0; loop < point.length; loop++) {
-			point[loop].detachSelf();
+			for (int i = 0; i < point[loop].length; i++) {
+				point[loop][i].detachSelf();
+			}
 		}
 		
 		//detach obstacle
@@ -317,6 +386,18 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		player_jump.detachSelf();
 		player_doublejump.detachSelf();
 		player_accident.detachSelf();
+		
+		//detach report
+		bg_report.detachSelf();
+		button_play.detachSelf();
+		button_play_push.detachSelf();
+		button_pocket.detachSelf();
+		button_pocket_push.detachSelf();
+		button_quit.detachSelf();
+		button_quit_push.detachSelf();
+		apple_report.detachSelf();
+		report_apple.detachSelf();
+		report_score.detachSelf();
 		
 		//detach utility
 		menu.detachSelf();
@@ -352,7 +433,9 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		//setpositoin point
 		for (int loop = 0; loop < point.length; loop++) {
-			point[loop].setPosition(engine.camera.getXMin() + point[loop].getWidth(), LOCATIONYPOINT);
+			for (int i = 0; i < point[loop].length; i++) {
+				point[loop][i].setPosition(engine.camera.getXMin() + point[loop][i].getWidth(), LOCATIONYPOINT);
+			}
 		}
 		
 		//setposition obstacle
@@ -390,6 +473,18 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		player_doublejump.setPosition(-42, -18);
 		player_accident.setPosition(-42, -18);
 		
+		//set position report
+		bg_report.setPosition(Anchor.CENTER);
+		button_pocket.setPosition((bg_report.getWidth()/2) - (button_pocket.getWidth()/2), POSITIONPOCKETY);
+		button_pocket_push.setPosition(Anchor.CENTER);
+		button_play.setPosition(button_pocket.getX() + (button_play.getWidth() * 2), POSITIONPLAYY);
+		button_play_push.setPosition(Anchor.CENTER);
+		button_quit.setPosition(button_pocket.getX() - (button_quit.getWidth() * 2), POSITIONQUITY);
+		button_quit_push.setPosition(Anchor.CENTER);
+		apple_report.setPosition(POSITIONAPPLEX, POSITIONAPPLEY);
+		report_apple.setPosition(POSITIONSCOREAPPLEX, POSITIONSCOREAPPLEY);
+		report_score.setPosition(POSITIONSCOREX, POSITIONSCOREY);
+		
 		//setposition untility
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
 		menu.setPosition(Anchor.CENTER);
@@ -403,6 +498,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{
 		engine.scene.registerTouchArea(bg_belakang);
 		engine.hud.registerTouchArea(menu);
+		engine.hud.registerTouchArea(button_play);
+		engine.hud.registerTouchArea(button_play_push);
+		engine.hud.registerTouchArea(button_pocket);
+		engine.hud.registerTouchArea(button_pocket_push);
+		engine.hud.registerTouchArea(button_quit);
+		engine.hud.registerTouchArea(button_quit_push);
+		
 	}
 
 	@Override
@@ -410,6 +512,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	{
 		engine.unregisterSceneTouch(bg_belakang);
 		engine.unregisterHudTouch(menu);
+		engine.unregisterHudTouch(button_play);
+		engine.unregisterHudTouch(button_play_push);
+		engine.unregisterHudTouch(button_pocket);
+		engine.unregisterHudTouch(button_pocket_push);
+		engine.unregisterHudTouch(button_quit);
+		engine.unregisterHudTouch(button_quit_push);
 	}
 
 	@Override
@@ -475,11 +583,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			 * */
 			
 			for (int loop = 0; loop < point.length; loop++) {
-				if(pointer.collidesWith(point[loop]))
-				{
-					point[loop].setPosition(0,LOCATIONYPOINT);
-					score++;
-					status.setText(String.valueOf(score));
+				for (int i = 0; i < point[loop].length; i++) {
+					if(pointer.collidesWith(point[loop][i]))
+					{
+						point[loop][i].setPosition(0,LOCATIONYPOINT);
+						score++;
+						status.setText(String.valueOf(score));
+					}
 				}
 			}
 			
@@ -585,9 +695,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				if(pointer.getX() < playerstartaccidentx){
 					pointer.setX(pointer.getX() + SPEED);
 				}
-				else 
+				else if(pointer.getX() >= playerstartaccidentx)
 				{
-					status.setText("finish");
+					report_apple.setText(String.valueOf(status));
+					report_score.setText("Distance : " + distance_player);
+					bg_report.setVisible(true);
 				}
 			}
 			else
@@ -600,9 +712,11 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 					}
 					pointer.setX(pointer.getX() + SPEED);
 				}
-				else 
+				else if(pointer.getX() >= playerstartaccidentx)
 				{
-					status.setText("finish");
+					report_apple.setText(String.valueOf(status));
+					report_score.setText("Distance : " + distance_player);
+					bg_report.setVisible(true);
 				}
 			}
 			
@@ -658,12 +772,28 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		switch (pSceneTouchEvent.getAction()) {
 		case TouchEvent.ACTION_DOWN:
 			{
-				
+				if(pTouchArea == button_play && bg_report.isVisible())
+				{
+					button_play.setAlpha(0f);
+					button_play_push.setAlpha(1f);
+					
+				}
+				else if(pTouchArea == button_pocket && bg_report.isVisible())
+				{
+					button_pocket.setAlpha(0f);
+					button_pocket_push.setAlpha(1f);
+				}
+				else if(pTouchArea == button_quit && bg_report.isVisible())
+				{
+					button_quit.setAlpha(0f);
+					button_quit_push.setAlpha(1f);
+					
+				}
 			}
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == bg_belakang && !isPaused() && isstart)
+				if(pTouchArea == bg_belakang && !isPaused() && isstart && !bg_report.isVisible())
 				{	
 					
 					Sfx.Pause(SOUND_RUN_GRASS);
@@ -680,12 +810,22 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 							player_jump.animate(DURATION_SINGLE, false);
 							player_jump.setVisible(true);
 							range_up = GameEngine.cameraHeight - SINGLE_JUMP_RANGE;
+							
+							Sfx.Pause(SOUND_RUN_GRASS);
+							//GameEngineConfiguration.useSound = false;
+							Sfx.Play(SOUND_JUMP);
+							//GameEngineConfiguration.useSound = true;
 						break;
 					case DOUBLE_JUMP:
 							if(player_jump.isVisible() && move_player == UP){
 								player_jump.setVisible(false);
 								player_doublejump.animate(DURATION_DOUBLE, false);
 								player_doublejump.setVisible(true);
+								
+								Sfx.Pause(SOUND_RUN_GRASS);
+								//GameEngineConfiguration.useSound = false;
+								Sfx.Play(SOUND_DBL_JUMP);
+								//GameEngineConfiguration.useSound = true;
 							}
 							range_up = GameEngine.cameraHeight - DOUBLE_JUMP_RANGE;
 						break;
@@ -705,6 +845,25 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				else if(pTouchArea == menu && isPaused())
 				{
 					isstart = false;
+					exitState(STATE_MENU);
+				}
+				else if(pTouchArea == button_play && bg_report.isVisible())
+				{
+					button_play.setAlpha(1f);
+					button_play_push.setAlpha(0f);
+					reset();
+				}
+				else if(pTouchArea == button_pocket && bg_report.isVisible())
+				{
+					button_pocket.setAlpha(1f);
+					button_pocket_push.setAlpha(0f);
+				}
+				else if(pTouchArea == button_quit && bg_report.isVisible())
+				{
+					button_quit.setAlpha(1f);
+					button_quit_push.setAlpha(0f);
+					highscore = distance_player;
+					engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE id_score = 0");
 					exitState(STATE_MENU);
 				}
 			}
@@ -737,25 +896,24 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			{
 				sprites[selectobs][flagobs[flag][i]].setX(flagout + r);
 				
-				switch (num.nextInt(5)) 
+				switch (num.nextInt(2)) 
 				{
 				case 1:
-					point[i].setPosition(flagout + r, sprites[selectobs][flagobs[flag][i]].getY() - (point[i].getHeight() * 2));
+					point[selectobs][i].setPosition(flagout + r, sprites[selectobs][flagobs[flag][i]].getY() - (point[selectobs][i].getHeight() * 2));
 					break;
 				case 2:
-					point[i].setPosition(flagout + r + bigrock[0].getWidth(), LOCATIONYPOINT);
+					point[selectobs][i].setPosition(flagout + r + tree[0].getWidth(), LOCATIONYPOINT);
 					break;
 				}
 			} 
 			else
 			{
-				switch (num.nextInt(7)) 
+				switch (num.nextInt(2)) 
 				{
 				case 2:
-					point[i].setPosition(flagout  + r, LOCATIONYPOINT);
+					point[selectobs][i].setPosition(flagout  + r, LOCATIONYPOINT);
 					break;
 				}
-				
 			}
 			j =+ r;
 			i++;
@@ -806,6 +964,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				}else{
 					player_doublejump.setVisible(false);
 				}
+				
+				Sfx.Play(SOUND_RUN_GRASS);
+				GameEngineConfiguration.useSound = true;
+				
 				player_run.setVisible(true);
 				jump =  false;
 				spritejump.setY(PLAYERY);
