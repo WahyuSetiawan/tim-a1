@@ -17,6 +17,7 @@ import com.agd.jb.state.value.StateDefine;
 import com.agd.jb.state.value.ValueFlagObs;
 import com.agd.jb.state.value.ValueReport;
 
+import android.R.integer;
 import android.view.KeyEvent;
 
 import lib.defines.GameEngineConfiguration;
@@ -70,6 +71,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameText report_apple;
 	
 	private int highscore = 0;
+	private int apple = 0;
+	private int finalscore = 0;
 	
 	private Random num = new Random();
 	
@@ -93,7 +96,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private int jump_player;
 	private int move_player;
 	private int obsfirst;
-	private int highscore;
+	//private int highscore;
 	private int obssecound;
 	private int score;
 	private int time;
@@ -175,10 +178,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		
 		distance 			= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 		status				= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
-		report_apple		= new GameText("xxxxxxx", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
+		report_apple		= new GameText("", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
 		report_score		= new GameText("score : CCCCCCC", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
 		txtScore			= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
-		txtScore	= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		txtScore			= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
@@ -189,6 +192,19 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.getDatabase().insertData(0, new String[]{"0","10"});
 		highscore = Integer.parseInt(strScore);
 		txtScore.setText("Score : " + highscore);
+		
+		String strApple = engine.getDatabase().getData(TABLE_POINT, 0, 1);
+		engine.getDatabase().print(TABLE_POINT);
+		engine.getDatabase().insertData(0, new String[]{"0","10"});
+		apple = Integer.parseInt(strApple);
+		report_apple.setText("" + apple);
+		
+		/** Ini buat tabel highscore klo udah ad gambar tableny tapi
+		 * 
+		String strFinal = engine.getDatabase().getData(TABLE_HIGHSC, 0, 1);
+		engine.getDatabase().print(TABLE_HIGHSC);
+		engine.getDatabase().insertData(0, new String[]{"0","10"});
+		finalscore = Integer.parseInt(strFinal);*/
 		
 		
 		new ScreenCapture();
@@ -697,7 +713,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				}
 				else if(pointer.getX() >= playerstartaccidentx)
 				{
-					report_apple.setText(String.valueOf(status));
+					report_apple.setText("Point : " + score);
 					report_score.setText("Distance : " + distance_player);
 					bg_report.setVisible(true);
 				}
@@ -714,7 +730,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				}
 				else if(pointer.getX() >= playerstartaccidentx)
 				{
-					report_apple.setText(String.valueOf(status));
+					report_apple.setText("Point :" + score);
 					report_score.setText("Distance : " + distance_player);
 					bg_report.setVisible(true);
 				}
@@ -746,8 +762,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	public void onKeyUp(int keyCode, KeyEvent event) 
 	{
-		engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE id_score = 0");
-		engine.finish();
+		engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE Id_score = 0");
+		engine.getDatabase().updateData(TABLE_POINT, new int[]{1}, new String[]{"" + apple}, "WHERE Id_Point = 0");
 		
 		if(keyCode == KeyEvent.KEYCODE_BACK) 
 		{
@@ -864,6 +880,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 					button_quit_push.setAlpha(0f);
 					highscore = distance_player;
 					engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE id_score = 0");
+					apple = score;
+					engine.getDatabase().updateData(TABLE_POINT, new int[]{1}, new String[]{"" + apple}, "WHERE Id_Point = 0");
 					exitState(STATE_MENU);
 				}
 			}
