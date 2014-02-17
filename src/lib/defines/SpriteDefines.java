@@ -27,6 +27,13 @@ public interface SpriteDefines
 	int QUIT_BUTTON		= POCKET_PUSH +1;
 	int QUIT_PUSH		= QUIT_BUTTON +1;
 	
+	/*
+	 * Batu besar : 115x161
+	 * Batu kecil : 80x55
+	 * Pohon jatuh : 207x81
+	 * Lebar lubang : 107
+	 * */
+	
 	int backgroundHeight 	= GameEngineConfiguration.masterHeight;
 	int backgroundWidth 	= GameEngineConfiguration.masterWidth;	
 	
