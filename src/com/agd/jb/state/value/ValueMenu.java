@@ -2,6 +2,7 @@ package com.agd.jb.state.value;
 
 public interface ValueMenu {
 	static final String PLAY_NOW = "MAIN SEKARANG";
+	static final String SCORE	= "HIGHSCORE : ";
 	
 	static final float SPEEDBGBELAKANG = 0.7f ;
 	
