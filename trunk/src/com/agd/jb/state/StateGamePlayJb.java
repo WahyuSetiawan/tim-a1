@@ -499,7 +499,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_quit_push.setPosition(Anchor.CENTER);
 		apple_report.setPosition(POSITIONAPPLEX, POSITIONAPPLEY);
 		report_apple.setPosition(POSITIONSCOREAPPLEX, POSITIONSCOREAPPLEY);
-		report_score.setPosition(POSITIONSCOREX, POSITIONSCOREY);
+		report_score.setPosition((bg_report.getWidth() / 2) - (report_score.getWidth()/2), POSITIONSCOREY);
 		
 		//setposition untility
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
