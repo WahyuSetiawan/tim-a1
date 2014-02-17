@@ -26,9 +26,10 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite[] bg_depan		= new GameSprite[2];
 	
-	private GameSprite bg_menu;
+	//private GameSprite bg_menu;
 	
 	private GameText text_play;
+	private GameText text_highscore;
 	
 	public StateGameMenuJb(GameEngine engine) {
 		super(engine);
@@ -38,7 +39,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	@Override
 	public void initComponent() 
 	{
-		bg_menu 		= new GameSprite(BG_MENU, engine);
+		//bg_menu 		= new GameSprite(BG_MENU, engine);
 		bg_belakang		= new GameSprite(BG_BELAKANG, engine);
 		
 		for (int loop = 0; loop < bg_tengah.length; loop++)
@@ -57,13 +58,19 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 		}
 		
 		text_play 		= new GameText(PLAY_NOW, PLAY_NOW.length(), engine.getFont(FONT_ANIMEACE2_ITAL),engine);
+		
+		String strscore = engine.getDatabase().getData(TABLE_SCORE, 0, 1);
+		
+		text_highscore	= new GameText(SCORE + strscore, strscore.length() + SCORE.length(), engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
 	protected void init() 
 	{
+		
+		
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
-		bg_menu.setAlpha(0f);
+		//bg_menu.setAlpha(0f);
 	}
 
 	@Override
@@ -85,15 +92,16 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 			engine.scene.attachChild(bg_floor_depan[loop]);
 		}
 		
-		engine.hud.attachChild(bg_menu);
+		//engine.hud.attachChild(bg_menu);
 		engine.hud.attachChild(text_play);
+		engine.hud.attachChild(text_highscore);
 	}
 
 	@Override
 	protected void detach()
 	{
 		//bg_fill.detachSelf();
-		bg_menu.detachSelf();
+		//bg_menu.detachSelf();
 		bg_belakang.detachSelf();
 		for (int loop = 0; loop < bg_tengah.length; loop++)
 		{
@@ -111,12 +119,13 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 		}
 		
 		text_play.detachSelf();
+		text_highscore.detachSelf();
 	}
 
 	@Override
 	protected void setPosition() 
 	{
-		bg_menu.setPosition(0,0);
+		//bg_menu.setPosition(0,0);
 		bg_belakang.setPosition(0,0);
 		
 		bg_tengah[0].setX(0);
@@ -129,6 +138,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 		bg_floor_depan[1].setX(bg_floor_depan[0].getWidth());
 		
 		text_play.setPosition(Anchor.CENTER);
+		text_highscore.setPosition(Anchor.TOP_CENTER);
 	}
 
 	@Override
@@ -207,18 +217,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 				{
 					if (pTouchArea == text_play) {
 						exitState(STATE_PLAY);
-						Mfx.Play(MUSIC_GP_JUNGLE);
-						GameEngineConfiguration.useMusic = true;
-						Sfx.Play(SOUND_RUN_GRASS);
-						GameEngineConfiguration.useSound = true;
 					} 
-					else 
-					{
-						Mfx.Pause(MUSIC_GP_JUNGLE);
-						GameEngineConfiguration.useMusic = false;
-						Sfx.Pause(SOUND_RUN_GRASS);
-						GameEngineConfiguration.useSound = false;
-					}
 				}
 				break;
 			case TouchEvent.ACTION_UP:
