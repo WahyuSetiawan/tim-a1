@@ -45,27 +45,34 @@ public interface SpriteDefines
 	
 	public final static ElementSprite CONTAINER[] = 
 	{
+		//background define
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/bg_belakang.png"),
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/bg_tengah.png"),
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/gameplay/background/bg_depan.png"),
 		new ElementSprite("gfx/gameplay/background/bg_floor_depan.png"),
+		//object define
 		new ElementSprite(250, 400, "gfx/gameplay/object/bg_pohon.png"),
 		new ElementSprite(300, 200, "gfx/gameplay/object/bg_semak.png"),
+		//define pointer
 		new ElementSprite( 60, 106, "gfx/gameplay/player/pointer.png"),
-		new ElementSprite(115, 161, "gfx/gameplay/object/BATU BESAR.png"),
-		new ElementSprite(80, 55, "gfx/gameplay/object/BATU KECIL.png"),
-		new ElementSprite("gfx/gameplay/object/LOBANG.png"),
-		new ElementSprite(207, 81, "gfx/gameplay/object/POHON AMBRUK.png"),
+		//obstacle define
+		new ElementSprite(115, 161, "gfx/gameplay/obstacle/BATU BESAR.png"),
+		new ElementSprite(80, 55, "gfx/gameplay/obstacle/BATU KECIL.png"),
+		new ElementSprite("gfx/gameplay/obstacle/LOBANG.png"),
+		new ElementSprite(207, 81, "gfx/gameplay/obstacle/POHON AMBRUK.png"),
+		//menu define
 		new ElementSprite("gfx/gameplay/menu/menu.png"),
 		new ElementSprite( 55, 40,"gfx/gameplay/menu/button_menu.png"),
+		//splash define
 		new ElementSprite(backgroundWidth, backgroundHeight, "gfx/loading/splash.png"),
 		new ElementSprite("gfx/loading/loading_bar.png"),
+		//report define
 		new ElementSprite(600, 300, "gfx/gameplay/report/bg_report.png"),
-		new ElementSprite(95, 95, "gfx/gameplay/report/play_button.png"),
-		new ElementSprite(90, 90,  "gfx/gameplay/report/play_push.png"),
-		new ElementSprite(95, 95,  "gfx/gameplay/report/pocket_button.png"),
-		new ElementSprite(90, 90, "gfx/gameplay/report/pocket_push.png"),
-		new ElementSprite(95, 95, "gfx/gameplay/report/quit_button.png"),
-		new ElementSprite(90, 90,  "gfx/gameplay/report/quit_push.png"),
+		new ElementSprite(69, 69, "gfx/gameplay/report/play_button.png"),
+		new ElementSprite(65, 65, "gfx/gameplay/report/play_push.png"),
+		new ElementSprite(69, 69, "gfx/gameplay/report/pocket_button.png"),
+		new ElementSprite(65, 65, "gfx/gameplay/report/pocket_push.png"),
+		new ElementSprite(69, 69, "gfx/gameplay/report/quit_button.png"),
+		new ElementSprite(65, 65,  "gfx/gameplay/report/quit_push.png"),
 	};
 }
