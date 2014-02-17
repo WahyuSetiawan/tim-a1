@@ -70,10 +70,8 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private GameText report_score;
 	private GameText report_apple;
 	
-	private int highscore = 0;
 	private int apple = 0;
 	private int finalscore = 0;
-	
 	private Random num = new Random();
 	
 	private GameAnim[][] point = new GameAnim[COUNT][COUNTOBS];
@@ -96,7 +94,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	private int jump_player;
 	private int move_player;
 	private int obsfirst;
-	//private int highscore;
+	private int highscore;
 	private int obssecound;
 	private int score;
 	private int time;
@@ -181,7 +179,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		report_apple		= new GameText("", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
 		report_score		= new GameText("score : CCCCCCC", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
 		txtScore			= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
-		txtScore			= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
 	@Override
@@ -213,6 +210,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
 		//on sound sfx mfx
+		Mfx.Play(MUSIC_GP_JUNGLE);
 		Sfx.Play(SOUND_RUN_GRASS);
 		GameEngineConfiguration.useSound = true;
 		
@@ -415,6 +413,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		report_apple.detachSelf();
 		report_score.detachSelf();
 		
+		//stop music
+		Mfx.PauseAll();
+		Sfx.PauseAll();
+		
 		//detach utility
 		menu.detachSelf();
 		button_menu.detachSelf();
@@ -493,13 +495,13 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		bg_report.setPosition(Anchor.CENTER);
 		button_pocket.setPosition((bg_report.getWidth()/2) - (button_pocket.getWidth()/2), POSITIONPOCKETY);
 		button_pocket_push.setPosition(Anchor.CENTER);
-		button_play.setPosition(button_pocket.getX() + (button_play.getWidth() * 2), POSITIONPLAYY);
+		button_play.setPosition((float) (button_pocket.getX() + (button_play.getWidth() * 1.5)), POSITIONPLAYY);
 		button_play_push.setPosition(Anchor.CENTER);
-		button_quit.setPosition(button_pocket.getX() - (button_quit.getWidth() * 2), POSITIONQUITY);
+		button_quit.setPosition((float) (button_pocket.getX() - (button_quit.getWidth() * 1.5)), POSITIONQUITY);
 		button_quit_push.setPosition(Anchor.CENTER);
-		apple_report.setPosition(POSITIONAPPLEX, POSITIONAPPLEY);
-		report_apple.setPosition(POSITIONSCOREAPPLEX, POSITIONSCOREAPPLEY);
-		report_score.setPosition((bg_report.getWidth() / 2) - (report_score.getWidth()/2), POSITIONSCOREY);
+		apple_report.setPosition(button_quit.getX() + (button_quit.getWidth() /2), POSITIONAPPLEY);
+		report_apple.setPosition((float) (apple_report.getX() + (apple_report.getWidth() * 1.2)), POSITIONSCOREAPPLEY);
+		report_score.setPosition(button_quit.getX() + (button_quit.getWidth() /2), POSITIONSCOREY);
 		
 		//setposition untility
 		button_menu.setPosition(Anchor.BOTTOM_CENTER);
@@ -520,7 +522,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		engine.hud.registerTouchArea(button_pocket_push);
 		engine.hud.registerTouchArea(button_quit);
 		engine.hud.registerTouchArea(button_quit_push);
-		
 	}
 
 	@Override
@@ -742,11 +743,12 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 	@Override
 	protected void onPaused() 
 	{
+		player_accident.getCurrentTileIndex();
 		menu.setVisible(true);
 		button_menu.setVisible(true);
 		player_run.stopAnimation();
 		Mfx.Pause(MUSIC_GP_JUNGLE);
-		Sfx.Pause(SOUND_RUN_GRASS);
+		Sfx.PauseAll();
 	}
 
 	@Override
@@ -756,7 +758,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 		button_menu.setVisible(false);
 		player_run.animate(SPEED_ANIM, true);
 		Mfx.Play(MUSIC_GP_JUNGLE);
-		Sfx.Play(SOUND_RUN_GRASS);
+		
+		if(pointer.getX() >= PLAYERY){
+			Sfx.Play(SOUND_RUN_GRASS);
+		}
 	}
 
 	@Override
@@ -770,14 +775,10 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			if(isPaused())
 			{
 				resume();
-				Mfx.Play(MUSIC_GP_JUNGLE);
-				Sfx.Play(SOUND_RUN_GRASS);
 			}
 			else
 			{ 	
 				pause();
-				Mfx.Pause(MUSIC_GP_JUNGLE);
-				Sfx.Pause(SOUND_RUN_GRASS);
 			}
 		}
 	}
@@ -809,7 +810,7 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == bg_belakang && !isPaused() && isstart && !bg_report.isVisible())
+				if(pTouchArea == bg_belakang && !isPaused() && isstart && !bg_report.isVisible() && !player_accident.isVisible())
 				{	
 					
 					Sfx.Pause(SOUND_RUN_GRASS);
@@ -992,7 +993,6 @@ public class StateGamePlayJb extends GameState  implements StateDefine, ValueCam
 				jump_player = NETRAL;
 				move_player = UP;
 			}
-			
 			break;
 		}
 	}

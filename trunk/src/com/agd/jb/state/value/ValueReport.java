@@ -10,9 +10,7 @@ public interface ValueReport {
 	
 	final static float POSITIONSCOREY	= 75;
 	
-	final static float POSITIONAPPLEX	= 100;
 	final static float POSITIONAPPLEY	= 130;
 	
-	final static float POSITIONSCOREAPPLEX = 190;
 	final static float POSITIONSCOREAPPLEY = 135;
 }
