@@ -112,6 +112,7 @@ public class GameDatabase extends SQLiteOpenHelper
 		{
 			e.printStackTrace();
 			closeConnection();
+			System.out.println("Gagal query");
 			return false;
 		}
 		
