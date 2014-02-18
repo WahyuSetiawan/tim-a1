@@ -4,28 +4,56 @@ import lib.element.ElementSprite;
 
 public interface SpriteDefines
 {
+	//index backgound
 	int BG_BELAKANG		= 0;
 	int BG_TENGAH		= BG_BELAKANG + 1;
 	int BG_DEPAN		= BG_TENGAH +1;
 	int BG_FLOOR_DEPAN	= BG_DEPAN +1;
+	
+	//index object
 	int BG_POHON		= BG_FLOOR_DEPAN + 1;
 	int BG_SEMAK		= BG_POHON + 1;
+	
+	//index pointer
 	int POINTER			= BG_SEMAK +1;
+	
+	//index obstacle
 	int BIG_ROCK		= POINTER + 1;
 	int SMALL_ROCK		= BIG_ROCK + 1;
 	int HOLE			= SMALL_ROCK + 1;
 	int TREE			= HOLE + 1;
+	
+	//index menu utama
 	int MENU			= TREE + 1;
 	int BUTTON_MENU		= MENU +1;
+	
+	//index splash
 	int SPLASH			= BUTTON_MENU +1;
 	int LOADINGBAR		= SPLASH +1;
-	int BG_REPORT		= LOADINGBAR +1;
-	int PLAY_BUTTON		= BG_REPORT +1;
-	int PLAY_PUSH		= PLAY_BUTTON +1;
-	int POCKET_BUTTON	= PLAY_PUSH +1;
-	int POCKET_PUSH		= POCKET_BUTTON +1;
-	int QUIT_BUTTON		= POCKET_PUSH +1;
-	int QUIT_PUSH		= QUIT_BUTTON +1;
+	
+	// index report
+	int REPORT_BG		= LOADINGBAR +1;
+	int PLAY_BUTTON		= REPORT_BG +1;
+	int POCKET_BUTTON	= PLAY_BUTTON +1;
+	int QUIT_BUTTON		= POCKET_BUTTON+1;
+	
+	//index closing
+	int CLOSING_BG		= QUIT_BUTTON +1;
+	int CLOSING_YES		= CLOSING_BG +1;
+	int CLOSING_NO		= CLOSING_YES +1;
+	
+	//index option
+	int OPTION_BG 		= CLOSING_NO +1;
+	int OPTION_GEAR		= OPTION_BG +1;
+	int OPTION_CREDIT 	= OPTION_GEAR +1;
+	int OPTION_OFF		= OPTION_CREDIT +1;
+	int OPTION_ON 		= OPTION_OFF+1;
+	
+	//index pause
+	int PAUSE_BG 		= OPTION_ON +1;
+	int PAUSE_EXIT		= PAUSE_BG+1;
+	int PAUSE_OPTION	= PAUSE_EXIT+1;
+	int PAUSE_POCKET	= PAUSE_OPTION +1;
 	
 	/*
 	 * Batu besar : 115x161
@@ -36,12 +64,6 @@ public interface SpriteDefines
 	
 	int backgroundHeight 	= GameEngineConfiguration.masterHeight;
 	int backgroundWidth 	= GameEngineConfiguration.masterWidth;	
-	
-	int HEIGHTBUTTON		= 10;
-	int WEIGHTBUTTON		= 10;
-	
-	int HEIGHTPUSHBUTTON	= (80/100) * HEIGHTBUTTON;
-	int WEIGHTPUSHBUTTON	= (80/100) * WEIGHTBUTTON;
 	
 	public final static ElementSprite CONTAINER[] = 
 	{
@@ -68,11 +90,23 @@ public interface SpriteDefines
 		new ElementSprite("gfx/loading/loading_bar.png"),
 		//report define
 		new ElementSprite(600, 300, "gfx/gameplay/report/bg_report.png"),
-		new ElementSprite(69, 69, "gfx/gameplay/report/play_button.png"),
-		new ElementSprite(65, 65, "gfx/gameplay/report/play_push.png"),
-		new ElementSprite(69, 69, "gfx/gameplay/report/pocket_button.png"),
-		new ElementSprite(65, 65, "gfx/gameplay/report/pocket_push.png"),
-		new ElementSprite(69, 69, "gfx/gameplay/report/quit_button.png"),
-		new ElementSprite(65, 65,  "gfx/gameplay/report/quit_push.png"),
+		new ElementSprite("gfx/gameplay/report/play_button.png"),
+		new ElementSprite("gfx/gameplay/report/pocket_button.png"),
+		new ElementSprite("gfx/gameplay/report/quit_button.png"),
+		//handling closing
+		new ElementSprite("gfx/gameplay/closing/bg.png"),
+		new ElementSprite("gfx/gameplay/closing/yes.png"),
+		new ElementSprite("gfx/gameplay/closing/no.png"),
+		//option define
+		new ElementSprite("gfx/gameplay/option/bg.png"),
+		new ElementSprite("gfx/gameplay/option/gear.png"),
+		new ElementSprite("gfx/gameplay/option/credit.png"),
+		new ElementSprite("gfx/gameplay/option/off.png"),
+		new ElementSprite("gfx/gameplay/option/on.png"),
+		//pause Define
+		new ElementSprite(600,300,"gfx/gameplay/pause/bg.png"),
+		new ElementSprite("gfx/gameplay/pause/exit.png"),
+		new ElementSprite("gfx/gameplay/pause/option.png"),
+		new ElementSprite("gfx/gameplay/pause/pocket.png"),
 	};
 }
