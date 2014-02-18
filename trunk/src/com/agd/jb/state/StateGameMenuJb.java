@@ -1,7 +1,5 @@
 package com.agd.jb.state;
 
-
-import com.agd.jb.state.value.Option;
 import com.agd.jb.state.value.ValueCamera;
 import com.agd.jb.state.value.ValueInterface;
 import com.agd.jb.state.value.ValueMenu;
@@ -10,8 +8,13 @@ import com.agd.jb.state.value.StateDefine;
 
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.FontUtils.MeasureDirection;
 
+import android.R.id;
+import android.R.string;
+import android.media.effect.Effect;
 import android.view.KeyEvent;
+import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameSprite;
 import lib.elementgame.GameText;
 import lib.engine.Anchor;
@@ -24,8 +27,6 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
 	private GameSprite[] bg_depan		= new GameSprite[2];
-	
-	private Option option;
 	
 	private GameSprite closing_background;
 	private GameSprite closing_yes;
@@ -40,7 +41,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	private GameSprite option_on_bgm;
 	
 	private GameText text_play;
-	private GameText text_highscore;
+	private GameText text_highscore;	
 	
 	public StateGameMenuJb(GameEngine engine) {
 		super(engine);
@@ -89,49 +90,18 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	@Override
 	protected void init() 
 	{
-		option = new Option();
+		//engine.getDatabase().updateData(TABLE_OPTION_GAME, new int[]{0, 1}, new String[]{"TRUE", "TRUE"}, "");
+		engine.getDatabase().print(TABLE_OPTION_GAME);
 		
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
 		
-		closingDefaultConfig();
-		optionDefaultConfig();
+		showClosing();
+		showOption();
+		closeClosing();
+		closeOption();
 		
-		closing_background.setVisible(false);
-		option_background.setVisible(false);
-	}
-	
-	protected void closingDefaultConfig(){
-		closing_background.setHeight(CLOSINGBACKGROUNDHEIGHT);
-		closing_background.setWidth(CLOSINGBACKGROUNDWIDTH);
-		
-		closing_yes.setHeight(CLOSINGYESBUTTONHEIGHT);
-		closing_yes.setWidth(CLOSINGYESBUTTONWIDTH);
-		
-		closing_no.setHeight(CLOSINGNOBUTTONHEIGHT);
-		closing_no.setWidth(CLOSINGNOBUTTONWIDTH);
-		
-		option_gear.setHeight(GEARBUTTONHEIGHT);
-		option_gear.setWidth(GEARBUTTONWIDTH);
-	}
-	
-	protected void optionDefaultConfig(){
-		option_background.setWidth(OPTIONBACKGROUNDWIDTH);
-		option_background.setHeight(OPTIONBACKGROUNDHEIGHT);
-		
-		option_off_sfx.setHeight(OFFBUTTONHEIGHT);
-		option_off_sfx.setWidth(OFFBUTTONWIDTH);
-		
-		option_off_bgm.setHeight(OFFBUTTONHEIGHT);
-		option_off_bgm.setWidth(OFFBUTTONWIDTH);
-		
-		option_on_sfx.setHeight(OFFBUTTONHEIGHT);
-		option_on_sfx.setWidth(OFFBUTTONWIDTH);
-		
-		option_on_bgm.setHeight(OFFBUTTONHEIGHT);
-		option_on_bgm.setWidth(OFFBUTTONWIDTH);
-		
-		option_credit.setHeight(OPTIONCREDITBUTTONHEIGHT);
-		option_credit.setWidth(OPTIONCREDITBUTTONWIDTH);
+		GameEngineConfiguration.useSound = getSound();
+		GameEngineConfiguration.useMusic = getSound();
 	}
 
 	@Override
@@ -270,7 +240,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 
 	@Override
 	protected void onUpdate() 
-	{
+	{		
 		bg_tengah[0].setX(bg_tengah[0].getX()- SPEEDBGBELAKANG);
 		bg_tengah[1].setX(bg_tengah[1].getX()- SPEEDBGBELAKANG);
 		
@@ -325,12 +295,11 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 			if(option_background.isVisible()){
 				option_background.setVisible(false);
 			}
-			closing_background.setVisible(true);
-			closingDefaultConfig();
+			showClosing();
 		}
 		else if(keyCode == KeyEvent.KEYCODE_BACK && closing_background.isVisible())
 		{
-			closing_background.setVisible(false);
+			closeClosing();
 		}
 	}
 	
@@ -341,49 +310,54 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 		{
 			case TouchEvent.ACTION_DOWN:
 				{
-					if (pTouchArea == text_play && !closing_background.isVisible() && !option_background.isVisible()) {
-						exitState(STATE_PLAY);
-					} 
-					else if(pTouchArea == closing_no && closing_background.isVisible())
-					{
-						closing_no.setHeight(CLOSINGNOPUSHHEIGHT);
-						closing_no.setWidth(CLOSINGNOPUSHWIDTH);
-					}
-					else if(pTouchArea == closing_yes && closing_background.isVisible())
-					{
-						closing_yes.setHeight(CLOSINGYESPUSHHEIGHT);
-						closing_yes.setWidth(CLOSINGYESPUSHWIDTH);
-					}
-					else if (pTouchArea == option_gear) {
+					if (pTouchArea == option_gear && !closing_background.isVisible()) {
 						option_gear.setHeight(GEARPUSHHEIGHT);
 						option_gear.setWidth(GEARPUSHWIDTH);
 					}
-					else if (pTouchArea == option_credit  && option_background.isVisible()) {
-						option_credit.setHeight(OPTIONCREDITPUSHHEIGHT);
-						option_credit.setWidth(OPTIONCREDITPUSHWIDTH);
-					}
-					else if (pTouchArea == option_off_bgm && option_background.isVisible()) 
-					{
-						if(option_on_bgm.isVisible()){
-							option_on_bgm.setHeight(OFFPUSHHEIGHT);
-							option_on_bgm.setWidth(OFFPUSHWIDTH);
-						}
-						else if(option_off_bgm.isVisible()) 
+					else if (pTouchArea == text_play && !closing_background.isVisible() && !option_background.isVisible()) {
+						exitState(STATE_PLAY);
+					} 
+					else if(closing_background.isVisible()){
+						if(pTouchArea == closing_no)
 						{
-							option_off_bgm.setHeight(OFFPUSHHEIGHT);
-							option_off_bgm.setWidth(OFFPUSHWIDTH);
+							closing_no.setHeight(CLOSINGNOPUSHHEIGHT);
+							closing_no.setWidth(CLOSINGNOPUSHWIDTH);
+						}
+						else if(pTouchArea == closing_yes)
+						{
+							closing_yes.setHeight(CLOSINGYESPUSHHEIGHT);
+							closing_yes.setWidth(CLOSINGYESPUSHWIDTH);
 						}
 					}
-					else if (pTouchArea == option_off_sfx && option_background.isVisible()) 
+					else if (option_background.isVisible())
 					{
-						if(option_on_sfx.isVisible()){
-							option_on_sfx.setHeight(OFFPUSHHEIGHT);
-							option_on_sfx.setWidth(OFFPUSHWIDTH);
+						if (pTouchArea == option_credit) {
+							option_credit.setHeight(OPTIONCREDITPUSHHEIGHT);
+							option_credit.setWidth(OPTIONCREDITPUSHWIDTH);
 						}
-						else if(option_off_sfx.isVisible()) 
+						else if (pTouchArea == option_off_bgm) 
 						{
-							option_off_sfx.setHeight(OFFPUSHHEIGHT);
-							option_off_sfx.setWidth(OFFPUSHWIDTH);
+							if(option_on_bgm.isVisible()){
+								option_on_bgm.setHeight(OFFPUSHHEIGHT);
+								option_on_bgm.setWidth(OFFPUSHWIDTH);
+							}
+							else if(option_off_bgm.isVisible()) 
+							{
+								option_off_bgm.setHeight(OFFPUSHHEIGHT);
+								option_off_bgm.setWidth(OFFPUSHWIDTH);
+							}
+						}
+						else if (pTouchArea == option_off_sfx) 
+						{
+							if(option_on_sfx.isVisible()){
+								option_on_sfx.setHeight(OFFPUSHHEIGHT);
+								option_on_sfx.setWidth(OFFPUSHWIDTH);
+							}
+							else if(option_off_sfx.isVisible()) 
+							{
+								option_off_sfx.setHeight(OFFPUSHHEIGHT);
+								option_off_sfx.setWidth(OFFPUSHWIDTH);
+							}
 						}
 					}
 				}
@@ -395,73 +369,180 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 						closing_no.setHeight(CLOSINGNOBUTTONHEIGHT);
 						closing_no.setWidth(CLOSINGNOBUTTONWIDTH);
 						
-						closing_background.setVisible(false);
+						closeClosing();
 					}
-					else if(pTouchArea == closing_yes && closing_background.isVisible())
+					else if(closing_background.isVisible())
 					{
-						closing_yes.setHeight(CLOSINGYESBUTTONHEIGHT);
-						closing_yes.setWidth(CLOSINGYESBUTTONWIDTH);
+						if(pTouchArea == closing_yes && closing_background.isVisible())
+						{
+							closing_yes.setHeight(CLOSINGYESBUTTONHEIGHT);
+							closing_yes.setWidth(CLOSINGYESBUTTONWIDTH);
+							
+							engine.getDatabase().updateData(TABLE_OPTION_GAME, new int[]{0, 1}, new String[]{String.valueOf(GameEngineConfiguration.useSound), String.valueOf(GameEngineConfiguration.useMusic)}, "");
+							
+							engine.finish();
+						}
+						else if(pTouchArea == closing_yes)
+						{
+							closing_yes.setHeight(CLOSINGYESBUTTONHEIGHT);
+							closing_yes.setWidth(CLOSINGYESBUTTONWIDTH);
+						}
 						
-						engine.finish();
 					}
-					else if (pTouchArea == option_gear) {
+					else if (pTouchArea == option_gear && !closing_background.isVisible())
+					{
 						option_gear.setHeight(GEARBUTTONHEIGHT);
 						option_gear.setWidth(GEARBUTTONWIDTH);
 						
 						
 						if(option_background.isVisible())
 						{
-							option_background.setVisible(false);
+							closeOption();
 						}
 						else if(!option_background.isVisible()) 
 						{
-							option_background.setVisible(true);
-							optionDefaultConfig();
+							showOption();
 						}
 					}
-					else if (pTouchArea == option_credit  && option_background.isVisible()) {
-						option_credit.setHeight(OPTIONCREDITBUTTONHEIGHT);
-						option_credit.setWidth(OPTIONCREDITBUTTONWIDTH);
-					}
-					else if (pTouchArea == option_off_bgm && option_background.isVisible()) 
+					else if(option_background.isVisible())
 					{
-						if(option_on_bgm.isVisible()){
-							option_on_bgm.setHeight(OFFBUTTONHEIGHT);
-							option_on_bgm.setWidth(OFFBUTTONWIDTH);
-							
-							option_on_bgm.setVisible(false);
-							option_off_bgm.setVisible(true);
+						if (pTouchArea == option_credit) {
+							option_credit.setHeight(OPTIONCREDITBUTTONHEIGHT);
+							option_credit.setWidth(OPTIONCREDITBUTTONWIDTH);
 						}
-						else if(option_off_bgm.isVisible()) 
+						else if (pTouchArea == option_off_bgm) 
 						{
-							option_off_bgm.setHeight(OFFBUTTONHEIGHT);
-							option_off_bgm.setWidth(OFFBUTTONWIDTH);
-							
-							option_off_bgm.setVisible(false);
-							option_on_bgm.setVisible(true);
+							if(option_on_bgm.isVisible()){
+								option_on_bgm.setHeight(OFFBUTTONHEIGHT);
+								option_on_bgm.setWidth(OFFBUTTONWIDTH);
+								
+								option_on_bgm.setVisible(false);
+								option_off_bgm.setVisible(true);
+								
+								GameEngineConfiguration.useMusic = false;
+							}
+							else if(option_off_bgm.isVisible()) 
+							{
+								option_off_bgm.setHeight(OFFBUTTONHEIGHT);
+								option_off_bgm.setWidth(OFFBUTTONWIDTH);
+								
+								option_off_bgm.setVisible(false);
+								option_on_bgm.setVisible(true);
+								
+								GameEngineConfiguration.useMusic = true;
+							}
 						}
-					}
-					else if (pTouchArea == option_off_sfx && option_background.isVisible()) 
-					{
-						if(option_on_sfx.isVisible()){
-							option_on_sfx.setHeight(OFFBUTTONHEIGHT);
-							option_on_sfx.setWidth(OFFBUTTONWIDTH);
-							
-							option_on_sfx.setVisible(false);
-							option_off_sfx.setVisible(true);
-						}
-						else if(option_off_sfx.isVisible()) 
+						else if (pTouchArea == option_off_sfx) 
 						{
-							option_off_sfx.setHeight(OFFBUTTONHEIGHT);
-							option_off_sfx.setWidth(OFFBUTTONWIDTH);
-							
-							option_off_sfx.setVisible(false);
-							option_on_sfx.setVisible(true);
+							if(option_on_sfx.isVisible()){
+								option_on_sfx.setHeight(OFFBUTTONHEIGHT);
+								option_on_sfx.setWidth(OFFBUTTONWIDTH);
+								
+								option_on_sfx.setVisible(false);
+								option_off_sfx.setVisible(true);
+								
+								GameEngineConfiguration.useSound = false;
+							}
+							else if(option_off_sfx.isVisible()) 
+							{
+								option_off_sfx.setHeight(OFFBUTTONHEIGHT);
+								option_off_sfx.setWidth(OFFBUTTONWIDTH);
+								
+								option_off_sfx.setVisible(false);
+								option_on_sfx.setVisible(true);
+								
+								GameEngineConfiguration.useSound = true;
+							}
 						}
 					}
 				}
 				break;
 		}
 		return false;
+	}
+	
+	protected void closeClosing()
+	{
+		closing_background.setVisible(false);
+	}
+	
+	protected void closeOption() {
+		option_background.setVisible(false);
+	}
+	
+	protected void showClosing(){
+		this.closing_background.setVisible(true);
+		
+		this.closing_background.setHeight(CLOSINGBACKGROUNDHEIGHT);
+		this.closing_background.setWidth(CLOSINGBACKGROUNDWIDTH);
+		
+		this.closing_yes.setHeight(CLOSINGYESBUTTONHEIGHT);
+		this.closing_yes.setWidth(CLOSINGYESBUTTONWIDTH);
+		
+		this.closing_no.setHeight(CLOSINGNOBUTTONHEIGHT);
+		this.closing_no.setWidth(CLOSINGNOBUTTONWIDTH);
+		
+		this.option_gear.setHeight(GEARBUTTONHEIGHT);
+		this.option_gear.setWidth(GEARBUTTONWIDTH);
+	}
+	
+	protected void showOption(){
+		this.option_background.setVisible(true);
+		
+		this.option_background.setWidth(OPTIONBACKGROUNDWIDTH);
+		this.option_background.setHeight(OPTIONBACKGROUNDHEIGHT);
+		
+		this.option_off_sfx.setHeight(OFFBUTTONHEIGHT);
+		this.option_off_sfx.setWidth(OFFBUTTONWIDTH);
+		
+		this.option_off_bgm.setHeight(OFFBUTTONHEIGHT);
+		this.option_off_bgm.setWidth(OFFBUTTONWIDTH);
+		
+		this.option_on_sfx.setHeight(OFFBUTTONHEIGHT);
+		this.option_on_sfx.setWidth(OFFBUTTONWIDTH);
+		
+		this.option_on_bgm.setHeight(OFFBUTTONHEIGHT);
+		this.option_on_bgm.setWidth(OFFBUTTONWIDTH);
+		
+		this.option_credit.setHeight(OPTIONCREDITBUTTONHEIGHT);
+		this.option_credit.setWidth(OPTIONCREDITBUTTONWIDTH);
+		
+		
+		if(GameEngineConfiguration.useSound)
+		{
+			this.option_on_sfx.setVisible(true);
+			this.option_off_sfx.setVisible(false);
+		}
+		else if(!GameEngineConfiguration.useSound)
+		{
+			this.option_on_sfx.setVisible(false);
+			this.option_off_sfx.setVisible(true);
+		}
+		
+		if(GameEngineConfiguration.useMusic)
+		{
+			this.option_on_bgm.setVisible(true);
+			this.option_off_bgm.setVisible(false);
+		}
+		else if(!GameEngineConfiguration.useMusic)
+		{
+			this.option_on_bgm.setVisible(false);
+			this.option_off_bgm.setVisible(true);
+		}
+	}
+	
+	
+	protected boolean getSound() {
+		String entitysound = engine.getDatabase().getData(TABLE_OPTION_GAME, 0, 0);
+		boolean getsound = entitysound.equals("true");
+		
+		return getsound;
+	}
+	
+	protected boolean getMusic() {
+		String entitymusic = engine.getDatabase().getData(TABLE_OPTION_GAME, 0, 1);
+		boolean getmusic = entitymusic.equals("true");
+		
+		return getmusic;
 	}
 }

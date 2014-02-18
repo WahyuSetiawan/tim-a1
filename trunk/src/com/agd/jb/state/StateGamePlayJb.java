@@ -5,7 +5,6 @@ import java.util.Random;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
 
-import com.agd.jb.state.value.Option;
 import com.agd.jb.state.value.ValueActionJump;
 import com.agd.jb.state.value.ValueCamera;
 import com.agd.jb.state.value.ValueInterface;
@@ -29,7 +28,6 @@ import lib.engine.GameState;
 
 public class StateGamePlayJb extends GameState  implements ValueInterface, StateDefine, ValueCamera, ValuePlayer, ValueActionJump, ValuePlay, ValueFlagObs, ValueReport
 {
-	private Option option = new Option();
 	private GameSprite bg_belakang;
 	private GameSprite[] bg_floor_depan = new GameSprite[2];
 	private GameSprite[] bg_tengah		= new GameSprite[2];
@@ -52,8 +50,10 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 	private GameSprite button_pocket;
 	private GameSprite button_quit;
 	
-	private GameSprite button_menu;
-	private GameSprite menu;
+	private GameSprite pause_background;
+	private GameSprite pause_exit;
+	private GameSprite pause_option;
+	private GameSprite pause_pocket;
 	
 	private GameText distance;
 	private GameText status;
@@ -157,16 +157,17 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		button_play			= new GameSprite(PLAY_BUTTON, engine);
 		button_pocket		= new GameSprite(POCKET_BUTTON, engine);
 		button_quit			= new GameSprite(QUIT_BUTTON, engine);
-		
-		button_menu 		= new GameSprite(BUTTON_MENU, engine);
-		menu				= new GameSprite(MENU, engine);
-		
 		apple_report		= new GameAnim(ANIM_POINT_APPLE, engine);
-		
-		distance 			= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
-		status				= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 		report_apple		= new GameText("", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
 		report_score		= new GameText("score : CCCCCCC", 20, engine.getFont(FONT_ANIMEACE_WHITE), engine);
+		
+		pause_background	= new GameSprite(PAUSE_BG, engine);
+		pause_exit			= new GameSprite(PAUSE_EXIT, engine);
+		pause_option		= new GameSprite(PAUSE_OPTION, engine);
+		pause_pocket		= new GameSprite(PAUSE_POCKET, engine);
+
+		distance 			= new GameText("0", 15, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
+		status				= new GameText("0", 10, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 		txtScore			= new GameText("", 20, engine.getFont(FONT_ANIMEACE2_ITAL2), engine);
 	}
 
@@ -198,7 +199,7 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		//on sound sfx mfx
 		Mfx.Play(MUSIC_GP_JUNGLE);
 		Sfx.Play(SOUND_RUN_GRASS);
-		GameEngineConfiguration.useSound = true;
+		//GameEngineConfiguration.useSound = true;
 		
 		//onPlayer
 		player_run.animate(SPEED_ANIM, true);
@@ -210,8 +211,6 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		player_accident.setVisible(false);
 		
 		//on GamePlay
-		menu.setVisible(false);
-		button_menu.setVisible(false);
 		highscore = 0;
 		
 		for (int loop = 0; loop < point.length; loop++) {
@@ -233,8 +232,10 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		
 		// on Area Touched
 		isstart			= false;
-		reportShow();
+		showPause();
+		showReport();
 		bg_report.setVisible(false);
+		pause_background.setVisible(false);
 
 		// on Jump
 		speed_decrease 	= 0;
@@ -245,8 +246,7 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		flagout			= STARTOBS;
 		jump_player		= NETRAL;
 		selectobs		= 0;
-	}
-	
+	}	
 
 	@Override
 	protected void attach() 
@@ -302,6 +302,12 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		pointer.attachChild(player_jump);
 		pointer.attachChild(player_doublejump);
 		
+		//attach pause
+		engine.hud.attachChild(pause_background);
+		pause_background.attachChild(pause_option);
+		pause_background.attachChild(pause_pocket);
+		pause_background.attachChild(pause_exit);
+		
 		// attach report
 		engine.hud.attachChild(bg_report);
 		bg_report.attachChild(button_play);
@@ -311,10 +317,7 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		bg_report.attachChild(report_apple);
 		bg_report.attachChild(report_score);
 		
-		//attach menu gameplay
-		engine.hud.attachChild(menu);
-		menu.attachChild(button_menu);
-		
+		//attach menu gameplay		
 		engine.hud.attachChild(distance);
 		engine.hud.attachChild(status);
 		engine.hud.attachChild(txtScore);
@@ -369,6 +372,10 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		pointer.detachSelf();
 		pointer.detachChildren();
 		
+		//detach pause
+		pause_background.detachChildren();
+		pause_background.detachSelf();
+		
 		//detach report
 		bg_report.detachSelf();
 		bg_report.detachChildren();
@@ -378,8 +385,6 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		Sfx.PauseAll();
 		
 		//detach utility
-		menu.detachSelf();
-		button_menu.detachSelf();
 		distance.detachSelf();
 		status.detachSelf();
 		
@@ -450,6 +455,12 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		player_doublejump.setPosition(-42, -18);
 		player_accident.setPosition(-42, -18);
 		
+		//set position pause
+		pause_background.setPosition((GameEngineConfiguration.masterWidth/2) - (pause_background.getWidth() / 2), 0);
+		pause_option.setPosition((pause_background.getWidth()/2)-(pause_pocket.getWidth()/2),pause_background.getHeight()/2);
+		pause_pocket.setPosition(pause_option.getX(), pause_option.getY() + pause_option.getHeight());
+		pause_exit.setPosition(pause_option.getX(), pause_pocket.getY() + pause_pocket.getHeight());
+		
 		//set position report
 		bg_report.setPosition(Anchor.CENTER);
 		button_pocket.setPosition((bg_report.getWidth()/2) - (button_pocket.getWidth()/2), POSITIONPOCKETY);
@@ -460,10 +471,7 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		report_score.setPosition(button_quit.getX() + (button_quit.getWidth() /2), POSITIONSCOREY);
 				
 		//setposition untility
-		button_menu.setPosition(Anchor.BOTTOM_CENTER);
-		menu.setPosition(Anchor.CENTER);
 		status.setPosition(Anchor.TOP_RIGHT);
-		
 		txtScore.setPosition(Anchor.TOP_CENTER);
 	}
 
@@ -471,26 +479,24 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 	protected void registerTouch() 
 	{
 		engine.scene.registerTouchArea(bg_belakang);
-		engine.hud.registerTouchArea(menu);
+		engine.hud.registerTouchArea(pause_exit);
+		engine.hud.registerTouchArea(pause_option);
+		engine.hud.registerTouchArea(pause_pocket);
 		engine.hud.registerTouchArea(button_play);
-		//engine.hud.registerTouchArea(button_play_push);
 		engine.hud.registerTouchArea(button_pocket);
-		//engine.hud.registerTouchArea(button_pocket_push);
 		engine.hud.registerTouchArea(button_quit);
-		//engine.hud.registerTouchArea(button_quit_push);
 	}
 
 	@Override
 	protected void unregisterTouch() 
 	{
 		engine.unregisterSceneTouch(bg_belakang);
-		engine.unregisterHudTouch(menu);
+		engine.unregisterHudTouch(pause_exit);
+		engine.unregisterHudTouch(pause_option);
+		engine.unregisterHudTouch(pause_pocket);
 		engine.unregisterHudTouch(button_play);
-		//engine.unregisterHudTouch(button_play_push);
 		engine.unregisterHudTouch(button_pocket);
-		//engine.unregisterHudTouch(button_pocket_push);
 		engine.unregisterHudTouch(button_quit);
-		//engine.unregisterHudTouch(button_quit_push);
 	}
 
 	@Override
@@ -673,7 +679,7 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 				{
 					report_apple.setText("Point : " + score);
 					report_score.setText("Distance : " + distance_player);
-					if(!bg_report.isVisible())reportShow();
+					if(!bg_report.isVisible())showReport();
 				}
 			}
 			else
@@ -691,18 +697,17 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 				{
 					report_apple.setText("Point :" + score);
 					report_score.setText("Distance : " + distance_player);
-					if(!bg_report.isVisible())reportShow();
+					if(!bg_report.isVisible())showReport();
 				}
 			}
-			
 		}
 	}
 
 	@Override
 	protected void onPaused() 
 	{
-		menu.setVisible(true);
-		button_menu.setVisible(true);
+		showPause();
+		
 		player_run.stopAnimation();
 		Mfx.Pause(MUSIC_GP_JUNGLE);
 		Sfx.PauseAll();
@@ -711,12 +716,12 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 	@Override
 	protected void onResumed() 
 	{
-		menu.setVisible(false);
-		button_menu.setVisible(false);
-		player_run.animate(SPEED_ANIM, true);
+		closePause();
+		
+		this.player_run.animate(SPEED_ANIM, true);
 		Mfx.Play(MUSIC_GP_JUNGLE);
 		
-		if(pointer.getX() >= PLAYERY){
+		if(pointer.getY() >= PLAYERY){
 			Sfx.Play(SOUND_RUN_GRASS);
 		}
 	}
@@ -746,27 +751,52 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		switch (pSceneTouchEvent.getAction()) {
 		case TouchEvent.ACTION_DOWN:
 			{
-				if(pTouchArea == button_play && bg_report.isVisible())
+				if(this.bg_report.isVisible())
 				{
-					button_play.setHeight(REPORTPLAYPUSHHEIGHT);
-					button_play.setWidth(REPORTPLAYPUSHWIDTH);
-					
+					if(pTouchArea == button_play)
+					{
+						button_play.setHeight(REPORTPLAYPUSHHEIGHT);
+						button_play.setWidth(REPORTPLAYPUSHWIDTH);
+						
+					}
+					else if(pTouchArea == button_pocket)
+					{
+						button_pocket.setHeight(REPORTPLAYPUSHHEIGHT);
+						button_pocket.setWidth(REPORTPLAYPUSHWIDTH);
+					}
+					else if(pTouchArea == button_quit)
+					{
+						button_quit.setHeight(REPORTPLAYPUSHHEIGHT);
+						button_quit.setWidth(REPORTPLAYPUSHWIDTH);
+					}
 				}
-				else if(pTouchArea == button_pocket && bg_report.isVisible())
-				{
-					button_pocket.setHeight(REPORTPLAYPUSHHEIGHT);
-					button_pocket.setWidth(REPORTPLAYPUSHWIDTH);
-				}
-				else if(pTouchArea == button_quit && bg_report.isVisible())
-				{
-					button_quit.setHeight(REPORTPLAYPUSHHEIGHT);
-					button_quit.setWidth(REPORTPLAYPUSHWIDTH);
+				else if(pause_background.isVisible()){
+					if(pTouchArea == pause_exit)
+					{
+						pause_exit.setHeight(PAUSEEXITPUSHHEIGHT);
+						pause_exit.setWidth(PAUSEEXITPUSHWIDTH);
+					}
+					else if(pTouchArea == pause_option)
+					{
+						pause_option.setHeight(PAUSEOPTIONPUSHNHEIGHT);
+						pause_option.setWidth(PAUSEOPTIONPUSHWIDTH);			
+					}
+					else if(pTouchArea == pause_pocket)
+					{
+						pause_pocket.setHeight(PAUSEPOCKETPUSHHEIGHT);
+						pause_pocket.setWidth(PAUSEPOCKETPUSHWIDTH);
+					}
 				}
 			}
 			break;
 		case TouchEvent.ACTION_UP:
 			{
-				if(pTouchArea == bg_belakang && !isPaused() && isstart && !bg_report.isVisible() && !player_accident.isVisible())
+				if(pTouchArea == bg_belakang 
+						&& !isPaused() && isstart 
+						&& !bg_report.isVisible() 
+						&& !player_accident.isVisible() 
+						&& !pause_background.isVisible()
+						)
 				{	
 					jump = true;
 					++jump_player;
@@ -802,32 +832,50 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 				else if(pTouchArea == bg_belakang && !isPaused() && !isstart){
 					isstart = true;
 				}
-				else if(pTouchArea == menu && isPaused())
+				
+				else if(bg_report.isVisible())
 				{
-					isstart = false;
-					exitState(STATE_MENU);
+					if(pTouchArea == button_pocket)
+					{
+						button_pocket.setHeight(REPORTPLAYBUTTONHEIGHT);
+						button_pocket.setWidth(REPORTPLAYBUTTONWIDTH);
+					}
+					else if(pTouchArea == button_play)
+					{
+						button_play.setHeight(REPORTPLAYBUTTONHEIGHT);
+						button_play.setWidth(REPORTPLAYBUTTONWIDTH);
+						reset();
+					}
+					else if(pTouchArea == button_quit)
+					{
+						button_quit.setHeight(REPORTPLAYBUTTONHEIGHT);
+						button_quit.setWidth(REPORTPLAYBUTTONWIDTH);
+						
+						highscore = distance_player;
+						engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE id_score = 0");
+						apple = score;
+						engine.getDatabase().updateData(TABLE_POINT, new int[]{1}, new String[]{"" + apple}, "WHERE Id_Point = 0");
+						exitState(STATE_MENU);
+					}
 				}
-				else if(pTouchArea == button_play && bg_report.isVisible())
-				{
-					button_play.setHeight(REPORTPLAYBUTTONHEIGHT);
-					button_play.setWidth(REPORTPLAYBUTTONWIDTH);
-					reset();
-				}
-				else if(pTouchArea == button_pocket && bg_report.isVisible())
-				{
-					button_pocket.setHeight(REPORTPLAYBUTTONHEIGHT);
-					button_pocket.setWidth(REPORTPLAYBUTTONWIDTH);
-				}
-				else if(pTouchArea == button_quit && bg_report.isVisible())
-				{
-					button_quit.setHeight(REPORTPLAYBUTTONHEIGHT);
-					button_quit.setWidth(REPORTPLAYBUTTONWIDTH);
-					
-					highscore = distance_player;
-					engine.getDatabase().updateData(TABLE_SCORE, new int[]{1}, new String[]{"" + highscore}, "WHERE id_score = 0");
-					apple = score;
-					engine.getDatabase().updateData(TABLE_POINT, new int[]{1}, new String[]{"" + apple}, "WHERE Id_Point = 0");
-					exitState(STATE_MENU);
+				else if(pause_background.isVisible()){
+					if(pTouchArea == pause_exit)
+					{
+						this.pause_exit.setHeight(PAUSEEXITBUTTONHEIGHT);
+						this.pause_exit.setWidth(PAUSEEXITBUTTONWIDTH);
+						
+						exitState(STATE_MENU);
+					}
+					else if(pTouchArea == pause_option)
+					{
+						this.pause_option.setHeight(PAUSEOPTIONBUTTONHEIGHT);
+						this.pause_option.setWidth(PAUSEOPTIONBUTTONWIDTH);			
+					}
+					else if(pTouchArea == pause_pocket)
+					{
+						this.pause_pocket.setHeight(PAUSEPOCKETBUTTONHEIGHT);
+						this.pause_pocket.setWidth(PAUSEPOCKETBUTTONWIDTH);
+					}
 				}
 			}
 			
@@ -836,7 +884,7 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		return false;
 	}
 	
-	protected void reportShow()
+	protected void showReport()
 	{
 		this.bg_report.setVisible(true);
 		
@@ -850,6 +898,28 @@ public class StateGamePlayJb extends GameState  implements ValueInterface, State
 		this.button_quit.setWidth(REPORTPLAYBUTTONWIDTH);
 		
 		this.apple_report.animate(DURATION_APPLE, true);
+	}
+
+	protected void closePause()
+	{
+		this.pause_background.setVisible(false);
+	}
+	
+	protected void showPause()
+	{
+		this.pause_background.setVisible(true);
+		
+		this.pause_background.setHeight(PAUSEBACKGROUNDHEIGHT);
+		this.pause_background.setWidth(PAUSEBACKGROUNDWIDTH);
+		
+		this.pause_option.setHeight(PAUSEOPTIONBUTTONHEIGHT);
+		this.pause_option.setWidth(PAUSEOPTIONBUTTONWIDTH);
+		
+		this.pause_pocket.setHeight(PAUSEPOCKETBUTTONHEIGHT);
+		this.pause_pocket.setWidth(PAUSEPOCKETBUTTONWIDTH);
+		
+		this.pause_exit.setHeight(PAUSEEXITBUTTONHEIGHT);
+		this.pause_exit.setWidth(PAUSEEXITBUTTONWIDTH);
 	}
 	
 	private float setFlag(GameSprite[][] sprites, int flag, int[][] flagobs)

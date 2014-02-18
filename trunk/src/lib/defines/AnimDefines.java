@@ -21,6 +21,6 @@ public interface AnimDefines
 		new ElementAnim(width, height, 7, 1, "gfx/gameplay/player/player_double_jump.png"),
 		new ElementAnim(width, height, 2, 1, "gfx/gameplay/player/player_lubang.png"),
 		new ElementAnim(width, height, 6, 1, "gfx/gameplay/player/player_nabrak.png"),
-		new ElementAnim(   75,     50, 8, 1, "gfx/gameplay/point/apple.png"),
+		new ElementAnim(   60,     60, 8, 1, "gfx/gameplay/point/apple.png"),
 	};
 }

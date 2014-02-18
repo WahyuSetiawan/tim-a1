@@ -1,6 +1,16 @@
 package com.agd.jb.state.value;
 
 public interface ValueInterface {
+	//value background interface
+	static final int OPTIONBACKGROUNDHEIGHT 	= 350;
+	static final int OPTIONBACKGROUNDWIDTH		= 450;
+	
+	static final int CLOSINGBACKGROUNDHEIGHT	= 275;
+	static final int CLOSINGBACKGROUNDWIDTH		= 550;
+	
+	static final int PAUSEBACKGROUNDHEIGHT		= 400;
+	static final int PAUSEBACKGROUNDWIDTH		= 350;
+
 	//value option closing
 	static final int CLOSINGYESBUTTONHEIGHT 	= 50;
 	static final int CLOSINGYESBUTTONWIDTH		= 140;
@@ -46,11 +56,23 @@ public interface ValueInterface {
 	static final int OPTIONCREDITPUSHHEIGHT		=  OPTIONCREDITBUTTONHEIGHT - 5;
 	static final int OPTIONCREDITPUSHWIDTH		=  OPTIONCREDITBUTTONWIDTH - 5;
 	
+	//value pause interface button
 	
-	//value background interface
-	static final int OPTIONBACKGROUNDHEIGHT 	= 350;
-	static final int OPTIONBACKGROUNDWIDTH		= 450;
+	static final int PAUSEPOCKETBUTTONHEIGHT	= CLOSINGYESBUTTONHEIGHT;
+	static final int PAUSEPOCKETBUTTONWIDTH 	= CLOSINGYESBUTTONWIDTH;
 	
-	static final int CLOSINGBACKGROUNDHEIGHT	= 275;
-	static final int CLOSINGBACKGROUNDWIDTH		= 550;
+	static final int PAUSEPOCKETPUSHHEIGHT		= PAUSEPOCKETBUTTONHEIGHT - 5;
+	static final int PAUSEPOCKETPUSHWIDTH 		= PAUSEPOCKETBUTTONWIDTH - 5;
+	
+	static final int PAUSEOPTIONBUTTONHEIGHT	= CLOSINGYESBUTTONHEIGHT + 10;
+	static final int PAUSEOPTIONBUTTONWIDTH 	= CLOSINGYESBUTTONWIDTH;
+
+	static final int PAUSEOPTIONPUSHNHEIGHT		= PAUSEOPTIONBUTTONHEIGHT - 5;
+	static final int PAUSEOPTIONPUSHWIDTH 		= PAUSEOPTIONBUTTONWIDTH - 5;
+	
+	static final int PAUSEEXITBUTTONHEIGHT		= CLOSINGYESBUTTONHEIGHT+ 10;
+	static final int PAUSEEXITBUTTONWIDTH  		= CLOSINGYESBUTTONWIDTH;
+	
+	static final int PAUSEEXITPUSHHEIGHT		= PAUSEEXITBUTTONHEIGHT - 5;
+	static final int PAUSEEXITPUSHWIDTH 		= PAUSEEXITBUTTONWIDTH - 5;
 }
