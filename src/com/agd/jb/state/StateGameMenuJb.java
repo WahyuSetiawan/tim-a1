@@ -86,7 +86,7 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 	@Override
 	protected void init() 
 	{
-		//engine.getDatabase().updateData(TABLE_OPTION_GAME, new int[]{0, 1}, new String[]{"TRUE", "TRUE"}, "");
+		engine.getDatabase().updateData(TABLE_OPTION_GAME, new int[]{0, 1}, new String[]{"TRUE", "TRUE"}, "");
 		engine.getDatabase().print(TABLE_OPTION_GAME);
 		
 		engine.camera.setCenter(CAMERA_CENTER_X, CAMERA_CENTER_Y);
