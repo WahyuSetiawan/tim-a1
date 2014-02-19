@@ -8,11 +8,7 @@ import com.agd.jb.state.value.StateDefine;
 
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.font.FontUtils.MeasureDirection;
 
-import android.R.id;
-import android.R.string;
-import android.media.effect.Effect;
 import android.view.KeyEvent;
 import lib.defines.GameEngineConfiguration;
 import lib.elementgame.GameSprite;
@@ -536,12 +532,16 @@ public class StateGameMenuJb extends GameState implements ValueCamera, ValuePlay
 		String entitysound = engine.getDatabase().getData(TABLE_OPTION_GAME, 0, 0);
 		boolean getsound = entitysound.equals("true");
 		
+		System.out.println(getsound);
+		
 		return getsound;
 	}
 	
 	protected boolean getMusic() {
 		String entitymusic = engine.getDatabase().getData(TABLE_OPTION_GAME, 0, 1);
 		boolean getmusic = entitymusic.equals("true");
+		
+		System.out.println(getmusic);
 		
 		return getmusic;
 	}
